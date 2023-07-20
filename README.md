@@ -1,0 +1,1 @@
+# rykerz_python_django_project
