@@ -1,0 +1,105 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
+    <style>
+        .login-container {
+            position: relative;
+            background: url("{% static 'images/only/bg-img1.png' %}") no-repeat center center fixed;
+            background-color: rgba(255, 255, 255, 0.75);
+            background-size: cover;
+            height: 100vh;
+        }
+
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(51, 34, 34, 0.50); /* Specify the opacity value here */
+        }
+
+        .login-form {
+            position: relative;
+            background-color: rgb(255, 255, 255);
+            padding: 20px;
+            opacity: 85%;
+            margin: 90px auto;
+            max-width: 400px;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+        <div class="container position-relative">
+            <div class="container position-absolute d-flex justify-content-center p-3">
+                <br>
+                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                    <symbol id="exclamation-triangle-fill" viewBox="0 0 16 16">
+                      <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </symbol>
+                </svg>
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert">
+                        <svg style="height: 20px; width: 20px;" class="bi flex-shrink-0 me-2 mb-3" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="row p-3">
+                <div class="col-md-6 offset-md-3">
+                    {% if otp_login == False %}
+                    <form action="{% url 'userlogin' %}" method="POST" class="login-form">
+                        {% csrf_token %}
+                        <center><h2 class="p-2">Log In</h2></center>
+                        <div class="form-group p-2">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter username" required>
+                        </div>
+                        <div class="form-group p-2">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                        </div>
+                        <center>
+                            <button type="submit" class="btn btn-success m-2">Submit</button>
+                            <p class="mt-3">Do you want to login using<a href="{% url 'userotplogin' %}">Phone Number</a></p>
+                            <p class="mt-3">New user? <a href="{% url 'usersignin' %}">Sign In</a></p>
+                        </center>
+                    </form>
+                    {% else %}
+                    <form action="{% url 'userotplogin' %}" method="POST" class="login-form">
+                        {% csrf_token %}
+                        <center><h4 class="p-2">Log In Using Phone Number</h4></center>
+                        <div class="form-group p-2">
+                            <label for="phone" class="p-1">Enter your Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" required>
+                        </div>
+                        <center>
+                            <button type="submit" class="btn btn-success m-2">Submit</button>
+                            <p class="mt-3">Do you want to login with<a href="{% url 'userlogin' %}">Password</a></p>
+                            <p class="mt-3">New user? <a href="{% url 'usersignin' %}">Sign In</a></p>
+                        </center>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/custom.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</html>
+
+
+
+    

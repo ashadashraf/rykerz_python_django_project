@@ -1,0 +1,81 @@
+{% extends 'userside/profilebar.html' %}
+{% block content %}
+
+<div class="ml-5 mt-3">
+        <form action="{% url 'checkout' user.id 0.0 %}" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-8">
+                <h4 class="text-white">Orders</h4>
+                {% if first_orders %}
+                <p class="text-white">You have {{ orders.count }} orders.</p>
+                {% for item in first_orders %}
+                {% with order=item.0 %}
+                {% with status=item.1 %}
+                <div class="card mb-3" style="max-width: 100%; background-color: rgb(231, 224, 214);">
+                    <div class="container">
+                        <div class="row g-0 p-3">
+                            <div class="col-md-2">
+                              <img src="/media/{{ order.product.product_image_id.image1 }}" class="align-self-start mr-3 rounded-3" alt="image1" width="140px" height="80px">
+                              <p class="card-text"><h5><b>{{ order.product.product_name.upper }}</b></h5></p>
+                              <p class="card-text"><small class="text-body-secondary">{{ order.product.product_label }}</small></p>
+                            </div>
+                            <div class="col-md-10">
+                                <div class="card-header">
+                                    <div class="row">
+                                        <div class="col-md-4">ORDER PLACED <p>{{ order.date }}</p></div>
+                                        <div class="col-md-2">TOTAL <p>{{ order.bulk_order.final_amount }}</p></div>
+                                        <div class="col-md-2">SHIP TO <p>{{ order.bulk_order.address.address_name }}</p></div>
+                                        <div class="col-md-4">ORDER <p># {{ order.bulk_order.bulk_order }}</p></div>
+                                    </div>
+                                </div>
+                              <div class="card-body row">
+                                <div class="col-6">
+                                    <h5 class="card-title">Arriving {{ order.bulk_order.delivery_date }}</h5>
+                                    {% if status == 'in progress' %}
+                                    <p>Status : <span  class="text-primary"><i class="fas fa-person-fill"></i> {{ status }}</span></p>
+                                    {% elif status == 'completed' %}
+                                    <p>Status : <span  class="text-success">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" style="margin-bottom: 5px; " fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                        </svg>
+                                        <i class="bi bi-check-circle-fill">{{ status }}</i></span>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-6">
+                                    <div class="row">
+                                        {% if order.order_status == 'delivered' %}
+                                        <a href="{% url 'orderinvoice' order.id %}" class="me-3">Invoice</a>
+                                        {% endif %}
+                                        <br>
+                                        <br>
+                                        <div class="col-6 d-flex justify-content-end p-2">
+                                            {% if order.order_status != 'delivered' %}
+                                            <a href="#" class="btn btn-outline-dark">Track order</a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6 d-flex justify-content-end p-2">
+                                            <a href="{% url 'userorderdetails' order.id %}" class="btn btn-outline-dark">View/Edit order</a>
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endwith %}
+                {% endfor %}
+                {% else %}
+                <h3 class="text-danger m-4">Your Order list is empty</h3>
+                {% endif %}
+                
+                
+            </div>
+        </div>
+        </form>
+</div>
+
+{% endblock %}

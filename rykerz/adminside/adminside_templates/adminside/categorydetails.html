@@ -1,0 +1,20 @@
+{% extends 'adminside/base.html' %}
+{% load static %}
+{% block content %}
+
+<main class="bg-dark">
+    <div class="container-fluid px-4">
+        <h1 class="mt-1 text-light p-4">{{ category.category_name }}</h1>
+        <div class="card" style="width: 18rem;">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Category Name : {{ category.category_name }}</li>
+                <li class="list-group-item">Category Status : {{ category.category_status }}</li>
+            </ul>
+        </div>
+        <div class="col p-4">
+            <a class="btn btn-secondary" href="{% url 'u-category' category.category_name %}" role="button">Edit</a>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'userside/base.html' %}
+{% block content %}
+
+{% if favourites %}
+<div class="container bg-black m-5">
+    {% for favourite in favourites %}
+    <div class="card-body border border-white row p-2 d-flex align-items-center">
+        <div class="col-2 d-flex justify-content-center">
+            <a href="{% url 'userdisplayproductdetails' favourite.product.id user.id %}"><img src="/media/{{ favourite.product.product_image_id.image1 }}" class="align-self-start mr-3 rounded-3" alt="image1" width="100px" height="65px"></a>
+        </div>
+        <div class="col-2">
+            <p class="card-text">
+                <h6 class="text-light"><b>{{ favourite.product.product_name.upper }}</b></h6>
+                <small class="text-light">{{ favourite.product.product_label }}</small>
+            </p>
+        </div>
+        <div class="col-2 d-flex justify-content-center">
+            <h5 class="text-light"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+              </svg>{{ favourite.product.sales_price }}</h5>
+        </div>
+        <div class="col-2 d-flex justify-content-center">
+            {% if favourite.product.stock > 0 %}
+            <h6 class="text-success">INSTOCK</h6>
+            {% else %}
+            <h6 class="text-danger">OUT OF STOCK</h6>
+            {% endif %}
+        </div>
+        <div class="col-2 d-flex justify-content-center">
+            <h4><a href="{% url 'favouriteproduct' user.id favourite.product.id range %}" style="color: aliceblue;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+              </svg></a></h4>
+        </div>
+        <div class="col-2 d-flex justify-content-center">
+            <a href="{% url 'addtocart' favourite.product.id user.id 1 'favourites' %}"><button type="button" class="btn btn-outline-warning">ADD TO CART</button></a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="d-flex justify-content-center m-5">
+    <h4>You have nothing in your favourites list</h4>
+</div>
+{% endif %}
+
+{% endblock %}

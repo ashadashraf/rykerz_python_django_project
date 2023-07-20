@@ -1,0 +1,421 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/userlogin.css' %}">
+    <style>
+      .category-box {
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+      }
+      .card-b {
+        background-color: #222222;
+        color: aliceblue;
+      }
+      .c-card {
+        height: 450px;
+        width: 350px;
+      }
+      .b-card {
+        height: 700px;
+      }
+      .category_image {
+        width:80px;
+        height:80px;
+        border-radius: 50%;
+      }
+      .cardimages {
+        width: 40px;
+        height: 250px;
+      }
+
+      .nutrition-table {
+        width: fit-content;
+      }
+
+      .image-container {
+        position: relative;
+      }
+      .overlay {
+        position: absolute;
+        top: 10%;
+        left: 90%;
+        transform: translate(-50%, -50%);
+        height: 30px;
+      }
+      
+      .price-tag {
+        height: 45px;
+        width: 250px;
+      }
+
+      .mrp {
+        padding-bottom: 12px;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div class="container position-relative d-flex justify-content-center">
+      <br>
+      
+      {% if messages %}
+          {% for message in messages %}
+
+          <div style="border-color: #0b0329;" class="alert alert-{{ message.tags }} alert-dismissible d-flex align-items-center fade show position-absolute z-3 w-35" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+              {% if message.tags == 'success' %}
+              <symbol id="check-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+              </symbol>
+              {% elif message.tags == 'warning' %}
+              <symbol id="info-fill" viewBox="0 0 16 16">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+              </symbol>
+              {% elif message.tags == 'danger' %}
+              <symbol id="exclamation-triangle-fill" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+              </symbol>
+              {% endif %}
+            </svg>
+              {{message}}
+              <button type="button" class="btn-close pb-2" data-bs-dismiss="alert" aria-label="Close" aria-hidden="true"></button>
+            </div>
+          {% endfor %}
+      {% endif %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js" integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <div class="ml-5 mt-4">
+        <div class="row">
+            <div class="col-7 ml-5">
+                <h4>CHECKOUT</h4>
+                {% if address %}
+                
+                <div class="card mt-4 col-8">
+                    <div class="card-header">
+                    Contact Information
+                    </div>
+                    <div class="card-body">
+                    <p>Name: {{ user.name }}</p>
+                    <p>Phone Number: {{ user.mobile }}</p>
+                    <p>Email: {{ user.email }}</p>
+                    <p><a href="{% url 'userlogout' %}">Login with different account</a></p>
+                    </div>
+                </div>
+                
+                <div class="card mt-4 col-8">
+                    <div class="card-header">
+                    DELIVERY ADDRESS
+                    </div>
+                    {% if address %}
+                    <div class="card-body">
+                        <h5 class="pb-2">{{ address.address_name }}</h5>
+                        <p>{{ address.full_name }}</p>
+                        <p>{{ address.building }}</p>
+                        <p>{{ address.area }}, {{ address.landmark }}, {{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+                        <p>Phone Number: {{ address.mobile }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card mt-4 col-8">
+                    <div class="card-body">
+                    <p><a href="{% url 'addaddress' user.id 'main' %}">add address / edit address</a></p>
+                    </div>
+                </div>
+
+                <div class="card mt-4 col-8">
+                    <div class="card-header">
+                        <h6>ORDER SUMMARY</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                            {% for cart_item in cart_items %}
+                            <tr>
+                                <th scope="row"><img src="/media/{{ cart_item.product.product_image_id.image1 }}" class="align-self-start mr-3" alt="image1" width="90px" height="60px"></th>
+                                <td><h6>{{ cart_item.product.product_name }}</h6></td>
+                                <td><h6>{{ cart_item.quantity }}</h6></td>
+                                {% if cart_item.product.weight is None %}
+                                <td><h6>{{ cart_item.product.piece }}pc</h6></td>
+                                {% else %}
+                                <td><h6>{{ cart_item.product.weight }}g</h6></td>
+                                {% endif %}
+                                <td><h6>{{ cart_item.unit_price }}</h6></td>
+                                <td><h6>{{ cart_item.total_price }}</h6></td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="d-flex flex-row-reverse align-items-center">
+                            <div class="p-2">
+                                <h5 class="text-success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                                    </svg> {{ totalprice }}
+                                </h5>
+                            </div>
+                            <div class="p-2">
+                                <h5>Total: </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="offcanvas offcanvas-start show" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+                    <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasLabel">Add address</h5>
+                    <a href="{% url 'userdisplaycart' user.id %}"><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></a>
+                    </div>
+                    <div class="offcanvas-body">
+                        <form method="POST" action="{% url 'addaddress' user.id range %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="addressname" class="text-black mt-4">Address name</label>
+                                    <input type="text" class="form-control w-75" id="addressname" name="addressname">
+                                    <label for="username" class="text-black mt-4">Full name</label>
+                                    <input type="text" class="form-control w-75" id="username" name="username">
+                                    <label for="phone" class="text-black mt-4">Mobile Number</label>
+                                    <input type="text" class="form-control w-75" id="phone" name="phone">
+                                    <label for="pincode" class="text-black mt-4">Pincode</label>
+                                    <input type="text" class="form-control w-75" id="pincode" name="pincode">
+                                    <label for="building" class="text-black mt-4">Flat, House no., Building, Company, Apartment</label>
+                                    <input type="text" class="form-control w-75" id="building" name="building">
+                                    <label for="area" class="text-black mt-4">Area, Street, Sector, Village</label>
+                                    <input type="text" class="form-control w-75" id="area" name="area">
+                                    <label for="landmark" class="text-black mt-4">Landmark</label>
+                                    <input type="text" class="form-control w-75" id="landmark" name="landmark">
+                                    <label for="city" class="text-black mt-4">Town/City</label>
+                                    <input type="text" class="form-control w-75" id="city" name="city">
+                                    <label for="state" class="text-black mt-4">State</label>
+                                    <input type="text" class="form-control w-75" id="state" name="state">
+                                </div>
+                                <br>    
+                            </div>
+                            <div class="modal-footer">
+                                <a href="{% url 'userdisplaycart' user.id %}"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button></a>
+                                <button type="submit" class="btn btn-dark">SAVE CHANGES</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- <div class="modal fade" id="addAddressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">New address</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{% url 'addaddress' user.id 'checkout' %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="addressname" class="text-black mt-4">Address name</label>
+                                    <input type="text" class="form-control w-25" id="addressname" name="addressname">
+                                    <label for="username" class="text-black mt-4">Full name</label>
+                                    <input type="text" class="form-control w-25" id="username" name="username">
+                                    <label for="phone" class="text-black mt-4">Mobile Number</label>
+                                    <input type="text" class="form-control w-25" id="phone" name="phone">
+                                    <label for="pincode" class="text-black mt-4">Pincode</label>
+                                    <input type="text" class="form-control w-25" id="pincode" name="pincode">
+                                    <label for="building" class="text-black mt-4">Flat, House no., Building, Company, Apartment</label>
+                                    <input type="text" class="form-control w-25" id="building" name="building">
+                                    <label for="area" class="text-black mt-4">Area, Street, Sector, Village</label>
+                                    <input type="text" class="form-control w-25" id="area" name="area">
+                                    <label for="landmark" class="text-black mt-4">Landmark</label>
+                                    <input type="text" class="form-control w-25" id="landmark" name="landmark">
+                                    <label for="city" class="text-black mt-4">Town/City</label>
+                                    <input type="text" class="form-control w-25" id="city" name="city">
+                                    <label for="state" class="text-black mt-4">State</label>
+                                    <input type="text" class="form-control w-25" id="state" name="state">
+                                </div>
+                                <br>    
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-dark">SAVE CHANGES</button>
+                            </div>
+                        </form>
+                    </div>
+                    </div>
+                </div> -->
+                {% endif %}
+            </div>
+
+            <div class="col-3 d-flex justify-content-center pt-3">
+                <div class="card mt-5" style="width: 25rem; height: max-content; background-color: rgb(250, 213, 167);">
+                    <div class="card-body">
+                        <center><h3 class="card-title text-black pb-3">PRICE DETAILS</h3></center>
+                        <br>
+                        <p>Apply coupon</p>
+                        <form id="myForm">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-6 d-flex justify-content-start">
+                                    <input type="text" class="form-control border border-dark" id="couponcode" name="couponcode">
+                                </div>
+                                <div class="col-6 d-flex justify-content-start">
+                                    <input type="submit" class="btn btn-outline-dark" value="Submit">
+                                    <!-- <button aria-setsize="small" onclick="applyCoupon(); updateData();" type="submit" class="btn btn-outline-dark">Apply</button> -->
+                                </div>
+                            </div>
+                        </form>
+
+                        <script>
+                            var couponCode;
+                            var payableAmount;
+                            $(document).ready(function() {
+                                $('#myForm').submit(function(e) {
+                                    e.preventDefault();
+
+                                    var formData = $(this).serialize();
+                                    
+                                    $.ajax({
+                                        type: 'POST',
+                                        url:"{% url 'applycoupon' user.id totalprice totalpayable %}",
+                                        data:formData,
+                                        success: function(response) {
+                                            console.log(response);
+                                            if (response.message === 'Success') {
+                                                couponCode = response.coupon_code;
+                                                // Update the discount value in the <h4> tag
+                                                $('.discount-value').text(response.allowance_discount);
+                                                $('.payable-amount').text(response.payable_amount);
+                                                $('#couponcode').text(couponCode);
+
+                                                payableAmount = response.payable_amount;
+                                                couponCode = response.couponcode
+                                            }
+                                        },
+                                        error: function(error) {
+                                            console.log(error);
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                        <br>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-6 d-flex justify-content-start">
+                                <h5>Price ({{ totalcount }} items)</h5>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                                    </svg> {{ totalprice }}</h4>
+                            </div>
+                        </div>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-6 d-flex justify-content-start">
+                                <h5>Delivery charge:</h5>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <h4>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                                    </svg> 20.0
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-6 d-flex justify-content-start">
+                                <h5>Discount: </h5>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <h4>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                        <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                                    </svg>
+                                    <span class="discount-value">{{ discount }}</span>
+                                </h4>
+                                
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-6 d-flex justify-content-start">
+                                <h5 class="text-black">Total Payable: </h5>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <h4 class="text-danger">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                                    </svg>
+                                    <span class="payable-amount">{{ totalpayable }}</span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7 ml-5">
+                <div class="card mt-4 col-8 mb-5">
+                    <div class="card-header">
+                        <h6>PAYMENT OPTIONS</h6>
+                    </div>
+                    <form id="place-order">
+                        {% csrf_token %}
+                        <input type="hidden" id="couponcode" name="couponcode" value="{{ couponcode }}">
+                        <div class="card-body">
+                            <div class="row pl-3 pt-3">
+                                <input class="form-check-input" type="radio" name="payment" id="payment-cod" value="cash_on_delivery">
+                                <label class="form-check-label" for="payment-cod">
+                                Cash on delivery
+                                </label>
+                            </div>
+                            <div class="row pl-3 pt-4">
+                                <input class="form-check-input" type="radio" name="payment" id="payment-razorpay" value="razorpay">
+                                <label class="form-check-label" for="payment-razorpay">
+                                Razor Pay
+                                </label>
+                            </div>
+                            <div class="row pl-3 pt-4">
+                                <input class="form-check-input" type="radio" name="payment" id="payment-wallet" value="wallet">
+                                <label class="form-check-label" for="payment-wallet">
+                                Wallet
+                                </label>
+                            </div>
+                            <div class="pb-4 pl-2 pt-3">
+                                <button type="submit" class="btn btn-danger">CONTINUE</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var form = document.getElementById('place-order');
+
+                            form.addEventListener('submit', function(event) {
+                                event.preventDefault();
+                                var paymentInput = document.querySelector('input[name="payment"]:checked');
+                                var paymentValue = paymentInput ? paymentInput.value : '';
+
+                                var userId = "{{ user.id }}"; // Replace with the actual user ID value
+                                var totalPayable ="{{ totalpayable }}"; // Replace with the actual total payable amount value
+                                var coupon = couponCode
+                    
+                                var url = '/placeorder/' + userId + '/' + totalPayable + '/' + coupon + '/' + paymentValue;
+                                window.location.href = url;
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+      
+    <script src="{% static 'js/custom.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -1,0 +1,132 @@
+
+{% block content %}
+
+
+<div class="container bg-white m-5">
+  <div class="row" style="grid-row: auto;">
+    <div class="col m-3 d-flex justify-content-start" style="grid-column-start: auto;"><h3><b>RYKERZ.in</b></h3></div>
+    <div class="col m-3 d-flex justify-content-end" style="grid-column-end: auto;"><b>Tax Invoice/Bill of Supply/Cash Memo</b></div>
+  </div>
+  <div class="row">
+    <div class="col m-3">
+      <h5 class="m-0">Sold By:</h5><br>
+      <p class="m-0">RYKERZ CORPORATE</p>
+      <p class="m-0">F/20 Vidya nagar</p>
+      <p class="m-0">Kannur road</p>
+      <p class="m-0">KASARAGOD, KERALA, 671123</p>
+      <p class="m-0">IN</p>
+    </div>
+    <div class="col m-3">
+      <h5 class="d-flex justify-content-end m-0">Billing Address:</h5><br>
+      <p class="d-flex justify-content-end m-0"><b>{{ bulk_order.address.full_name }}</b></p>
+      <p class="d-flex justify-content-end m-0">{{ bulk_order.address.building }}, {{ bulk_order.address.area }}, {{ bulk_order.address.landmark }}</p>
+      <p class="d-flex justify-content-end m-0">{{ bulk_order.address.city }}, {{ bulk_order.address.state }}, {{ bulk_order.address.pincode }}</p>
+      <p class="d-flex justify-content-end m-0">IN</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col m-3">
+      <p class="d-flex justify-content-start m-0">PAN No: CRBPBJ5641G</p>
+      <p class="d-flex justify-content-start m-0">GST Registration No: 21IGDOEKAOM4354W6</p>
+    </div>
+    <div class="col m-3">
+      <h5 class="d-flex justify-content-end m-0">Shipping Address</h5>
+      <p class="d-flex justify-content-end m-0">{{ bulk_order.address.address_name }}</p>
+      <p class="d-flex justify-content-end m-0">{{ bulk_order.address.full_name }}</p>
+      <p class="d-flex justify-content-end m-0">{{ bulk_order.address.building }}, {{ bulk_order.address.area }}, {{ bulk_order.address.landmark }}</p>
+      <p class="d-flex justify-content-end m-0">{{ bulk_order.address.city }}, {{ bulk_order.address.state }}, {{ bulk_order.address.pincode }}</p>
+      <p class="d-flex justify-content-end m-0">IN</p>
+      <p class="d-flex justify-content-end m-0">Place of supply: KASARAGOD, KERALA</p>
+      <p class="d-flex justify-content-end m-0">Place of delivery: {{ bulk_order.address.city }}, {{ bulk_order.address.state }}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col m-3">
+      <p class="d-flex justify-content-start m-0"><b>Order Number: </b>{{ bulk_order.bulk_order }}</p>
+      <p class="d-flex justify-content-start m-0"><b>Order Date: </b>{{ bulk_order.date }}</p>
+    </div>
+  </div>
+  <div class="m-5">
+    <table class="table table-secondary">
+      <thead>
+        <tr>
+          <th scope="col">Sl.No</th>
+          <th scope="col">Description</th>
+          <th scope="col">Unit Price</th>
+          <th scope="col">Qty</th>
+          <th scope="col">Net Amount</th>
+          <th scope="col">Tax Rate</th>
+          <th scope="col">Tax Type</th>
+          <th scope="col">Tax Amount</th>
+          <th scope="col">Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in orders %}
+        <tr>
+          <th scope="row">{{ forloop.counter }}</th>
+          <td>{{ item.product.product_name }}</td>
+          <td>{{ item.product.product_price }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.amount }}</td>
+          <td>5%</td>
+          <td>IGST</td>
+          <td>{{ item.tax_amount }}</td>
+          <td>{{ item.total_amount }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td>Delivery Charge</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ bulk_order.delivery_charge }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">Total</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td><b>{{ total }}</b></td>
+        </tr>
+        {% if coupon_amount %}
+        <tr>
+          <th>Coupon discount</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>{{ coupon_amount }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Grand Total</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="bg-black text-white"><b>{{ bulk_order.final_amount }}</b></td>
+        </tr>
+        {% endif %}
+      </tfoot>
+    </table>
+  </div>
+  <br>
+</div>
+
+{% endblock %}

@@ -1,0 +1,431 @@
+{% extends 'adminside/base.html' %}
+
+{% block content %}
+
+<main>
+  <div class="container-fluid px-4">
+    <h3 class="mt-2 text-style"><b>Dashboard</b></h3>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item active text-white">Overview</li>
+    </ol>
+    <div class="row card-background pt-4 ps-3 pe-3 d-flex justify-content-around">
+      <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card-style text-style mb-4">
+          <div class="card-header">Today's Order</div>
+          <div class="card-body d-flex justify-content-center">Count: {{ daily_sales_count }}</div>
+          <h4 class="card-body d-flex justify-content-center">Revenue: {{ daily_sales }}</h4>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <a class="small text-white stretched-link" href="#">View Details</a>
+            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card-style text-white mb-4">
+          <div class="card-header">This Week's Order</div>
+          <div class="card-body d-flex justify-content-center">Count: {{ weekly_sales_count }}</div>
+          <h4 class="card-body d-flex justify-content-center">Revenue: {{ total_monthly_sales }}</h4>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <a class="small text-white stretched-link" href="#">View Details</a>
+            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card-style text-white mb-4">
+          <div class="card-header">This Month's Order</div>
+          <div class="card-body d-flex justify-content-center">Count: {{ monthly_sales_count }}</div>
+          <h4 class="card-body d-flex justify-content-center">Revenue: {{ total_monthly_sales }}</h4>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <a class="small text-white stretched-link" href="#">View Details</a>
+            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card-style text-white mb-4">
+          <div class="card-header">Total Order</div>
+          <div class="card-body d-flex justify-content-center">Count: {{ total_count }}</div>
+          <h4 class="card-body d-flex justify-content-center">{{ total_amount }}</h4>
+          <div class="card-footer d-flex align-items-center justify-content-between">
+            <a class="small text-white stretched-link" href="#">View Details</a>
+            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <h4 class="text-style">Sales</h4>
+    <div class="row">
+      <div class="col-xl-4">
+          <div class="card mb-4 card-background">
+              <div class="card-header text-style">
+                <i class="fas fa-chart-bar me-1"></i>
+                Profit
+              </div>
+              <div class="card-body">
+                  <canvas id="myChart2" width="400" height="300"></canvas>
+              </div>
+          </div>
+      </div>
+      <div class="col-xl-4">
+          <div class="card mb-4 card-background">
+              <div class="card-header text-style">
+                <i class="fas fa-chart-bar me-1"></i>
+                Weekly Sales
+              </div>
+              <div class="card-body">
+                  <canvas id="weeklySales" width="400" height="300"></canvas>
+              </div>
+          </div>
+      </div>
+      <div class="col-xl-4">
+          <div class="card mb-4 card-background">
+              <div class="card-header text-style">
+                <i class="fas fa-chart-bar me-1"></i>
+                Monthly Sales
+              </div>
+              <div class="card-body">
+                  <canvas id="monthlySales" width="400" height="300"></canvas>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="lg-col-6 md-col-6 sm-col-12">
+          <div class="row">
+            <div class="col">
+              <h3 class="text-style">Recent Orders</h3>
+            </div>
+            <div class="col">
+              <div class="d-flex justify-content-end"><a href="{% url 'salesreportpdf' %}">Download latest sales report</a></div>
+            </div>
+          </div>
+        {% if recent_orders %}
+        <div class="card lg-6 sm-12 mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+                Recent
+            </div>
+            <table id="datatablesSimple">
+                <thead>
+                    <tr>
+                        <th>Order Id</th>
+                        <th>Product Id</th>
+                        <th>Product Name</th>
+                        <th>User Id</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.product.id }}</td>
+                        <td>{{ order.product.product_name }}</td>
+                        <td>{{ order.customer.name }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>{{ order.total_amount }}</td>
+                        <td>{{ order.order_status }}</td>
+                        <td>
+                          {% if order.order_status == 'requesting' %}
+                          <a href="{% url 'updateorderstatus' order.id 'requesting' %}" class="btn btn-success" type="button">accept</a>
+                          <a href="{% url 'updateorderstatus' order.id 'cancel' %}" class="btn btn-danger" type="button">cancel</a>
+                          {% elif order.order_status == 'confirmed' %}
+                          <a href="{% url 'updateorderstatus' order.id 'confirmed' %}" class="btn btn-success" type="button">packed</a>
+                          {% elif order.order_status == 'packed' %}
+                          <a href="{% url 'updateorderstatus' order.id 'packed' %}" class="btn btn-success" type="button">shipped</a>
+                          {% elif order.order_status == 'shipped' %}
+                          <a href="{% url 'updateorderstatus' order.id 'shipped' %}" class="btn btn-success" type="button">delivered</a>
+                          {% endif %}
+                          <a href="{% url 'displayorderdetails' order.id %}" class="btn btn-success" type="button">order details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-style">No recent orders</p>
+        {% endif %}
+        </div>
+    </div>
+    <div class="row mt-5">
+      <h3 class="text-style">Product Based Sales</h3>
+      {% for category in categories %}
+      <div class="col-xl-4">
+          <div class="card mb-4 card-background">
+              <div class="card-header text-style">
+                <i class="fas fa-chart-bar me-1"></i>
+                {{ category }}
+              </div>
+              <div class="card-body"><canvas id="{{ category }}" width="400" height="300"></canvas></div>
+          </div>
+      </div>
+      {% endfor %}
+  </div>
+</div>
+</main>
+<footer class="py-4 mt-auto">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center justify-content-between small">
+      <div class="text-white">Copyright &copy; RYKERZ 2023</div>
+      <div>
+        <a href="#" class="text-white">Privacy Policy</a>
+        &middot;
+        <a href="#" class="text-white">Terms &amp; Conditions</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    {% for category in categories %}
+    var productNames = [
+        {% for product in products %} {% if product.product_category == category %} '{{ product.product_name }}', {% endif %} {% endfor %}
+    ];
+
+    var orderCounts = [
+        {% for product in products %} {% if product.product_category == category %} {{ product.num_orders }}, {% endif %} {% endfor %}
+    ];
+    var ctx = document.getElementById('{{ category }}').getContext('2d');
+    var myChart1 = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: productNames,
+        datasets: [{
+          label: 'Orders',
+          data: orderCounts,
+          backgroundColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+    {% endfor %}
+
+    var profitProductNames = [
+        {% for product in product_profit %} '{{ product.product_name }}', {% endfor %}
+    ];
+
+    var productProfits = [
+        {% for product in product_profit %}
+            {{ product.total_profit|default:0 }},
+        {% endfor %}
+    ];
+    var ctx = document.getElementById('myChart2').getContext('2d');
+    var myChart2 = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: profitProductNames,
+        datasets: [{
+          label: 'Profit',
+          data: productProfits,
+          backgroundColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+
+
+    var weekNumber = [
+        {% for weekday_name in weekday_names %} '{{ weekday_name }}', {% endfor %}
+    ];
+
+    var totalSales = [
+        {% for sale in weekly_sales %}
+            {{ sale.transaction_amount }},
+        {% endfor %}
+    ];
+    var ctx = document.getElementById('weeklySales').getContext('2d');
+    var weeklySales = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: weekNumber,
+        datasets: [{
+          label: 'Sales',
+          data: totalSales,
+          backgroundColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+
+
+    var monthNumber = [
+        {% for sale in monthly_sales %} '{{ sale.month }}', {% endfor %}
+    ];
+
+    var monthlyTotalSales = [
+        {% for sale in monthly_sales %}
+            {{ sale.total_sales }},
+        {% endfor %}
+    ];
+    var ctx = document.getElementById('monthlySales').getContext('2d');
+    var monthlySales = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: monthNumber,
+        datasets: [{
+          label: 'Monthly Total Sales',
+          data: monthlyTotalSales,
+          backgroundColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+
+
+  });
+</script>
+
+{% endblock %}

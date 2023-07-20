@@ -1,0 +1,35 @@
+{% extends 'userside/profilebar.html' %}
+{% block content %}
+
+<div class="container">
+    <form method="POST" action="{% url 'updateuserdetails' user.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username" class="text-black mt-4 text-white">Full name</label>
+            <input type="text" class="form-control w-25" id="username" name="username" value="{{ user.name }}">
+            <label for="phone" class="text-black mt-4 text-white">Phone</label>
+            <input type="text" class="form-control w-25" id="phone" name="phone" value="{{ user.mobile }}">
+            <label for="email" class="text-black mt-4 text-white">Email</label>
+            <input type="text" class="form-control w-25" id="email" name="email" value="{{ user.email }}">
+        </div>
+        <br>
+        <button type="submit" class="btn btn-dark mb-5">SAVE CHANGES</button>
+    </form>
+</div>
+<div class="container mt-5">
+    <h5 class="text-white">Change password</h5>
+    <form method="POST" action="{% url 'updateuserpassword' user.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="currentpassword" class="text-black mt-4 text-white">Current password</label>
+            <input type="password" class="form-control w-25" id="currentpassword" name="currentpassword" disabled value="{{ user.password }}">
+            <label for="password" class="text-black mt-4 text-white">New password</label>
+            <input type="password" class="form-control w-25" id="password" name="password">
+            <label for="confirm_password" class="text-black mt-4 text-white">Confirm password</label>
+            <input type="password" class="form-control w-25" id="confirm_password" name="confirm_password">
+        </div>
+        <br>
+        <button type="submit" class="btn btn-dark mb-5">SAVE CHANGES</button>
+    </form>
+</div>
+{% endblock %}

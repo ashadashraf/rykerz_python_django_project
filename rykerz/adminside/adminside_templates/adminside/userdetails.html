@@ -1,0 +1,25 @@
+{% extends 'adminside/base.html' %}
+{% load static %}
+{% block content %}
+
+<main class="bg-dark">
+    <div class="container-fluid px-4 pb-5">
+        <h1>Customer Details</h1>
+        <div class="card" style="width: 18rem;">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Name : {{ customer.name }}</li>
+                <li class="list-group-item">Phone : {{ customer.mobile }}</li>
+                <li class="list-group-item">Email : {{ customer.email }}</li>
+                <li class="list-group-item">Address : {% if address %} <br> <b>{{ address.address_name }}</b>, {{ address.building }}, {{ address.area }}, {{ address.landmark }}, {{ address.city}}, {{ address.state }} Pincode: {{ address.pincode }} {% endif %}</li>
+                <li class="list-group-item">Status : {{ customer.is_active }}</li>
+            </ul>
+        </div>
+        {% if customer.is_active is True %}
+        <a class="btn btn-danger mt-5" href="{% url 'u-user-status' customer.name %}" role="button">BLOCK</a>
+        {% else %}
+        <a class="btn btn-success mt-5" href="{% url 'u-user-status' customer.name %}" role="button">UNBLOCK</a>
+        {% endif %}
+    </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'adminside/base.html' %}
+{% block content %}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Update SubCategory</h1>
+        <br>
+        <div class="container bg-dark">
+        <form method="POST" action="{% url 'u-sub-category-record' sub_category.category sub_category.sub_category_name %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="sub_category_name" class="text-white mt-4">SubCategory Title</label>
+                <input type="text" class="form-control w-25" id="sub_category_name" name="sub_category_name" value="{{ sub_category.sub_category_name }}">
+            </div>
+            <div class="form-group">
+                <label for="category" class="text-white mt-4">Category Name</label>
+                <input type="text" class="form-control w-25" id="category" name="category" value="{{ sub_category.category.category_name }}">
+            </div>
+            <div class="form-status">
+                <label for="product_sub_category" class="text-white mt-4">Subcategory Image</label>
+                <br>
+                <label class="form-label text-white m-1" for="sub_c_img">Choose file</label>
+                <input type="file" name="sub_c_img" class="form-control d-none" id="sub_c_img" />
+            </div>
+            <div class="form-group">
+                <label for="sub_category_status" class="text-white mt-4 w-25">Category Status</label>
+                <br>
+                <input type="radio" class="btn-check" name="sub_category_status" id="success-outlined" autocomplete="off" value="True"  checked>
+                <label class="btn btn-outline-success" for="success-outlined">ACTIVE</label>
+
+                <input type="radio" class="btn-check" name="sub_category_status" id="danger-outlined" autocomplete="off" value="False">
+                <label class="btn btn-outline-danger" for="danger-outlined">DEACTIVE</label>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary mb-5">Update</button>
+        </form>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

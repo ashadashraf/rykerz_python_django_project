@@ -1,0 +1,61 @@
+{% extends 'adminside/base.html' %}
+
+{% block content %}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">SubCategory</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Overview</li>
+        </ol>
+        <div class="d-flex justify-content-between">
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Search by product name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+            <a class="btn btn-primary" href="{% url 'add-sub-category' %}" role="button">Add SubCategory</a>
+        </div>
+        <br>
+        <table class="table table-striped table-dark">
+            <thead>
+              <tr>
+                <th scope="col">SubCategory Name</th>
+                <th scope="col">Category Name</th>
+                <th scope="col">SubCategory Status</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sub_category in sub_categories %}
+              <tr>
+                <td>{{sub_category.sub_category_name}}</td>
+                <th>{{sub_category.category.category_name}}</th>
+                <td>{{sub_category.sub_category_status}}</td>
+                <td>
+                  <div class="row">
+                    <div class="col">
+                      <a class="btn btn-secondary" href="{% url 'u-sub-category-record' sub_category.category sub_category.sub_category_name %}" role="button">Update</a>
+                    </div>
+                    <div class="col">
+                    {% if sub_category.sub_category_status is True %}
+                    <div class="form-group">
+                      <a class="btn btn-danger" href="{% url 'u-sub-category-status' sub_category.category sub_category.sub_category_name %}" role="button">Block</a>
+                    </div>
+                    {% else %}
+                    <div class="form-group">
+                      <a class="btn btn-success" href="{% url 'u-sub-category-status' sub_category.category sub_category.sub_category_name %}" role="button">Unblock</a>
+                    </div>
+                    {% endif %}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+{% endblock %}

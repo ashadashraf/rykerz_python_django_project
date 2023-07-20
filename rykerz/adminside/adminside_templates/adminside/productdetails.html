@@ -1,0 +1,81 @@
+{% extends 'adminside/base.html' %}
+{% load static %}
+{% block content %}
+
+<main class="bg-dark">
+    <div class="container-fluid px-4">
+        <h1 class="mt-1 text-danger p-4">{{ product.product_name|upper }}</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active text-secondary"><h4>Overview</h4></li>
+        </ol>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active text-warning"><h3>Category : {{ product.product_category.category_name }}</h3></li>
+        </ol>
+        <div class="row">
+            <div class="col-3 mt-5">
+                <a href="/media/{{ product.product_image_id.image1 }}"><img src="/media/{{ product.product_image_id.image1}}" alt="Product img2" class="img-fluid rounded-5" width="350"></a>
+            </div>
+            <div class="col-6 d-flex justify-content-center">
+                <a href="/media/{{ product.product_image_id.image2 }}"><img src="/media/{{ product.product_image_id.image2 }}" alt="Product img1" class="img-fluid rounded-5" width="450"></a>
+            </div>
+            <div class="col-3 mt-5">
+                <a href="/media/{{ product.product_image_id.image3 }}"><img src="/media/{{ product.product_image_id.image3 }}" alt="Product img3" class="img-fluid rounded-5" width="350"></a>
+            </div>
+        </div>
+        <br>
+        <h4 class="text-light">Label</h4>
+        <div class="text-light">{{ product.product_label }}</div>
+        <br>
+        <h4 class="text-light">Description</h4>
+        <div class="text-light">{{ product.product_description }}</div>
+        <br>
+        <div class="row mt-4 d-flex justify-content-around">
+            <div class="col-3">
+                <div class="card text-center" style="background-color: rgb(236, 191, 132);">
+                    <div class="card-body">
+                      <h5 class="card-title">No. of pieces</h5>
+                      <h3>{{ product.piece }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card text-center" style="background-color: rgb(236, 191, 132);">
+                    <div class="card-body">
+                      <h5 class="card-title">Net weight</h5>
+                      <h3>{{ product.weight }} g</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card text-center" style="background-color: rgb(236, 191, 132);">
+                    <div class="card-body">
+                      <h5 class="card-title">Delivery duration</h5>
+                      <h3>{{ product.duration }} hrs</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row d-flex justify-content-center mt-5 pt-3 p-5">
+            <h4 class="text-light d-flex justify-content-center pb-2">Nutritional Information</h4>
+            <table class="table table-borderless table-success w-50">
+                <tbody>
+                <tr>
+                    <th scope="row">Total Energy</th>
+                    <th scope="row">Carbohydrate</th>
+                    <th scope="row">Fat</th>
+                    <th scope="row">Protein</th>
+                </tr>
+                <tr>
+                    <th scope="row">{{ product.total_energy }} kcl</th>
+                    <th scope="row">{{ product.carbohydrate }} g</th>
+                    <th scope="row">{{ product.fat }} g</th>
+                    <th scope="row">{{ product.protein }} g</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

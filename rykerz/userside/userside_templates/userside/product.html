@@ -1,0 +1,100 @@
+{% extends 'userside/base.html' %}
+{% block content %}
+<div class="main">
+    <div class="category-box bg-white">
+        <h1 class="mt-2 mb-3 ml-5">{% if category|length == 0 %} {{ category }} {% else %} {% for category in category %} |- {{ category }} -|  {% endfor %} {% endif %}</h1>
+        {% if category|length == 0 %}
+        <div class="row">
+            <div class="col md-3 d-flex justify-content-start pb-3">
+                <div class="pl-5 pr-4">
+                    <a href="{% url 'user-d-product' category user.id %}"><img src="/media/product/images/chickenbiryani-img8_7dkl0qt.jpg" alt="" class="category_image" id="category_image"></a>
+                    <h5 class="d-flex justify-content-center pt-2">All</h5>
+                </div>
+                {% for sub in subcategory %}
+                <div class="pl-4">
+                    <div class="d-flex justify-content-center"><a href="{% url 'userdisplayscproducts' sub.category sub.sub_category_name %}"><img src="/media/{{ sub.sub_category_image }}" alt="" class="category_image" id="category_image"></a></div>
+                    <h5 class="d-flex justify-content-center pt-2">{{ sub.sub_category_name }}</h5>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row bg-black p-5 d-flex justify-content-right">
+        {% for product in products %}
+        <div class="card-group col-md-3 col-sm-6 mb-5">
+            <div class="card c-card rounded-2">
+                <div class="image-container">
+                    <a href="{% url 'userdisplayproductdetails' product.id user.id %}"><img src="/media/{{ product.product_image_id.image1 }}" class="cardimages card-img-top rounded-2 p-1" alt="image"></a>
+                </div>
+              
+                <div class="card-body row">
+                    <div class="col-9">
+                        <h5 class="card-title">{{ product.product_name }}</h5>
+                    </div>
+                    <div class="col-3 mt-2 pr-1">
+                        {% if favourites %}
+                        {% for favourite in favourites %}
+                            {% if favourite.product == product %}
+                            <a href="{% url 'favouriteproduct' user.id product.id range %}"><i class="bi bi-heart-fill overlay" style="color: red;"></i></a>
+                            {% else %}
+                            <a href="{% url 'favouriteproduct' user.id product.id range %}"><i class="bi bi-heart overlay" style="color: red;"></i></a>
+                            {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        <a href="{% url 'favouriteproduct' user.id product.id range %}"><i class="bi bi-heart overlay" style="color: red;"></i></a>
+                        {% endif %}
+                    </div>
+                    <p class="card-text">{{ product.product_label }}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <h4 class="card-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                        <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                        </svg>
+                        {{ product.sales_price }}
+                    </h4>
+                    <small class="text-muted">{{ product.duration }}</small>
+                    <a href="{% url 'addtocart' product.id user.id 1 range %}" class="btn btn-outline-danger mr-2">Add</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="pagination-container d-flex justify-content-center pt-3 bg-black">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+    
+                {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                <li class="page-item active page" aria-current="page">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+    
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+{% endblock %}

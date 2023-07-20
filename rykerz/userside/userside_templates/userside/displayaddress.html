@@ -1,0 +1,128 @@
+{% extends 'userside/profilebar.html' %}
+{% block content %}
+
+<div class="container">
+    {% for address in addresses %}
+    <div class="card mt-4 col-8">
+        <div class="card-header">
+            <div class="row">
+                <div class="col">
+                    <h4>{{ address.address_name }}</h4>
+                </div>
+                <div class="col d-flex justify-content-end">
+                    <a href="{% url 'updatedefaultaddress' address.id %}"><div class="form-check">
+                        <input class="form-check-input" type="radio" name="address" id="address{{ address.id }}" value="{{ address.id }}" {% if address.active_address %} checked {% endif %}>
+                        <label class="form-check-label" for="address{{ address.id }}">
+                        Default
+                        </label>
+                    </div></a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-8">
+                    <p>{{ address.full_name }}</p>
+                    <p>{{ address.building }}</p>
+                    <p>{{ address.area }}, {{ address.landmark }}, {{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+                    <p>Phone Number: {{ address.mobile }}</p>
+                    
+                    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#editAddressModal{{ address.id }}">
+                        Edit address
+                    </button>
+                    <div class="modal fade" id="editAddressModal{{ address.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editAddressModalLabel{{ address.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit address</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{% url 'updateaddress' address.id %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="addressname" class="text-black mt-4">Address name</label>
+                                        <input type="text" class="form-control w-25" id="addressname" name="addressname" value="{{ address.address_name }}">
+                                        <label for="username" class="text-black mt-4">Full name</label>
+                                        <input type="text" class="form-control w-25" id="username" name="username" value="{{ address.full_name }}">
+                                        <label for="phone" class="text-black mt-4">Mobile Number</label>
+                                        <input type="text" class="form-control w-25" id="phone" name="phone" value="{{ address.mobile }}">
+                                        <label for="pincode" class="text-black mt-4">Pincode</label>
+                                        <input type="text" class="form-control w-25" id="pincode" name="pincode" value="{{ address.pincode }}">
+                                        <label for="building" class="text-black mt-4">Flat, House no., Building, Company, Apartment</label>
+                                        <input type="text" class="form-control w-25" id="building" name="building" value="{{ address.building }}">
+                                        <label for="area" class="text-black mt-4">Area, Street, Sector, Village</label>
+                                        <input type="text" class="form-control w-25" id="area" name="area" value="{{ address.area }}">
+                                        <label for="landmark" class="text-black mt-4">Landmark</label>
+                                        <input type="text" class="form-control w-25" id="landmark" name="landmark" value="{{ address.landmark }}">
+                                        <label for="city" class="text-black mt-4">Town/City</label>
+                                        <input type="text" class="form-control w-25" id="city" name="city" value="{{ address.city }}">
+                                        <label for="state" class="text-black mt-4">State</label>
+                                        <input type="text" class="form-control w-25" id="state" name="state" value="{{ address.state }}">
+                                    </div>
+                                    <br>    
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-dark">SAVE CHANGES</button>
+                                </div>
+                            </form>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="d-flex justify-content-end"><a href="{% url 'deleteaddress' user.id address.id %}">delete</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <br>
+    <button type="button" class="btn btn-primary mb-5" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+        Add new address
+    </button>
+    
+    <div class="modal fade" id="addAddressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">New address</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'addaddress' user.id 'main' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="addressname" class="text-black mt-4">Address name</label>
+                        <input type="text" class="form-control w-25" id="addressname" name="addressname">
+                        <label for="username" class="text-black mt-4">Full name</label>
+                        <input type="text" class="form-control w-25" id="username" name="username">
+                        <label for="phone" class="text-black mt-4">Mobile Number</label>
+                        <input type="text" class="form-control w-25" id="phone" name="phone">
+                        <label for="pincode" class="text-black mt-4">Pincode</label>
+                        <input type="text" class="form-control w-25" id="pincode" name="pincode">
+                        <label for="building" class="text-black mt-4">Flat, House no., Building, Company, Apartment</label>
+                        <input type="text" class="form-control w-25" id="building" name="building">
+                        <label for="area" class="text-black mt-4">Area, Street, Sector, Village</label>
+                        <input type="text" class="form-control w-25" id="area" name="area">
+                        <label for="landmark" class="text-black mt-4">Landmark</label>
+                        <input type="text" class="form-control w-25" id="landmark" name="landmark">
+                        <label for="city" class="text-black mt-4">Town/City</label>
+                        <input type="text" class="form-control w-25" id="city" name="city">
+                        <label for="state" class="text-black mt-4">State</label>
+                        <input type="text" class="form-control w-25" id="state" name="state">
+                    </div>
+                    <br>    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-dark">SAVE CHANGES</button>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

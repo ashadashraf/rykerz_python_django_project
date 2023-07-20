@@ -1,0 +1,42 @@
+{% extends 'adminside/base.html' %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center m-5">
+    <div class="card mb-3">
+        <div class="card-body">
+          <h3 class="card-title">PRODUCT : {{ order.product.product_name.upper }}</h3>
+          <br>
+          <b><p class="card-dark">Order ID : {{ order.id }}</p></b>
+          <b><p class="card-dark">Customer ID : {{ order.customer.id }}</p></b>
+          <b><p class="card-dark">Customer Name : {{ order.customer.name }}</p></b>
+          <b><p class="card-text text-dark">Shipping Address: <br>{{ order.bulk_order.address.full_name }}, {{ order.bulk_order.address.building }}, {{ order.bulk_order.address.area }}, {{ order.bulk_order.address.landmark }}, {{ order.bulk_order.address.city }}, {{ order.bulk_order.address.state }} - {{ order.bulk_order.address.pincode }}</p></b>
+          <br>
+          <b><p class="card-dark">Order status : {{ order.order_status }}</p></b>
+          <br>
+          {% if order.payment_status %}
+          <b><p class="card-dark">Payment status : Paid</p></b>
+          {% else %}
+          <b><p class="card-dark">Payment status : Pending</p></b>
+          {% endif %}
+          <br>
+          <b><p class="card-dark">Expected arrival : {{ order.bulk_order.delivery_date }}</p></b>
+          <td>
+            {% if order.order_status == 'requesting' %}
+            <a href="{% url 'updateorderstatus' order.id 'requesting' %}" class="btn btn-success" type="button">accept</a>
+            <a href="{% url 'updateorderstatus' order.id 'cancel' %}" class="btn btn-danger" type="button">cancel</a>
+            {% elif order.order_status == 'confirmed' %}
+            <a href="{% url 'updateorderstatus' order.id 'confirmed' %}" class="btn btn-success" type="button">packed</a>
+            {% elif order.order_status == 'packed' %}
+            <a href="{% url 'updateorderstatus' order.id 'packed' %}" class="btn btn-success" type="button">shipped</a>
+            {% elif order.order_status == 'shipped' %}
+            <a href="{% url 'updateorderstatus' order.id 'shipped' %}" class="btn btn-success" type="button">delivered</a>
+            {% elif order.order_status == 'delivered' or order.order_status == 'cancelled' or order.order_status == 'returned' %}
+            <a href="#" class="btn btn-success" type="button">order details</a>
+            {% endif %}
+          </td>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'adminside/base.html' %}
+{% block content %}
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Update Category</h1>
+        <br>
+        <div class="container bg-dark">
+        <form method="POST" action="{% url 'u-category-record' category.category_name %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+            <label for="category_name" class="text-white mt-4">Category Title</label>
+            <input type="text" class="form-control w-25" id="category_name" name="category_name" value="{{ category.category_name }}">
+            </div>
+
+            <div class="form-group">
+                <label for="category_status" class="text-white mt-4 w-25">Category Status</label>
+                <br>
+                <input type="radio" class="btn-check" name="category_status" id="success-outlined" autocomplete="off" value="True"  checked>
+                <label class="btn btn-outline-success" for="success-outlined">ACTIVE</label>
+
+                <input type="radio" class="btn-check" name="category_status" id="danger-outlined" autocomplete="off" value="False">
+                <label class="btn btn-outline-danger" for="danger-outlined">DEACTIVE</label>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary mb-5">Update</button>
+        </form>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends 'adminside/base.html' %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Add this script block to your HTML page -->
+<script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.slim.js"></script>
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Update Product</h1>
+        <br>
+        <div class="container bg-dark">
+        <form method="POST" action="{% url 'u-product-record' product.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+            <label for="product_title" class="text-white mt-4">Product Title</label>
+            <input type="text" class="form-control w-25" id="product_title" name="product_title" value="{{ product.product_name }}">
+            </div>
+
+            <div class="form-group">
+                <label for="product_category" class="text-white mt-4">Product Image</label>
+                <div class="row w-50">
+                    <div class="col-4">
+                        <br>
+                        <label class="form-label text-white m-1" for="img-1">Choose file</label>
+                        <input type="file" name="img-1" class="form-control d-none" id="img-1" />
+                        <img src="/media/{{ product.product_image_id.image1}}" class="img-thumbnail" alt="img-1">
+                    </div>
+                    <div class="col-4">
+                        <br>
+                        <label class="form-label text-white m-1" for="img-2">Choose file</label>
+                        <input type="file" name="img-2" class="form-control d-none" id="img-2" />
+                        <img src="/media/{{ product.product_image_id.image2}}" class="img-thumbnail" alt="img-2">
+                    </div>
+                    <div class="col-4">
+                        <br>
+                        <label class="form-label text-white m-1" for="img-3">Choose file</label>
+                        <input type="file" name="img-3" class="form-control d-none" id="img-3" />
+                        <img src="/media/{{ product.product_image_id.image3}}" class="img-thumbnail" alt="img-3">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="product_status" class="text-white mt-4 w-25">Product Status</label>
+                <br>
+                <input type="radio" class="btn-check" name="product_status" id="success-outlined" autocomplete="off" value="True"  checked>
+                <label class="btn btn-outline-success" for="success-outlined">ACTIVE</label>
+
+                <input type="radio" class="btn-check" name="product_status" id="danger-outlined" autocomplete="off" value="False">
+                <label class="btn btn-outline-danger" for="danger-outlined">DEACTIVE</label>
+            </div>
+
+            <div class="form-group">
+                <label for="product_label" class="text-white mt-4">Product Label</label>
+                <input type="text" class="form-control w-25" id="product_label" name="product_label" value="{{ product.product_label }}">
+            </div>
+
+            <div class="form-group">
+                <label for="product_description" class="text-white mt-4">Product Description</label>
+                <textarea class="form-control w-25" id="product_description" name="product_description" rows="3">{{ product.product_description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="product_category" class="text-white mt-4">Product Category</label>
+                <div class="form-control w-25">
+                    <select name="product_category" id="product_category" class="form-select" aria-label="Default select example" required>
+                        <option selected value="{{ product.product_category }}">{{ product.product_category }}</option>
+                        {% for category in categories %}
+                        {% if category != product.product_category %}
+                        <option value='{{ category }}' class="form-control">{{ category }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+
+            <script>
+                $(document).ready(function() {
+                    $('#product_category').on('change', function() {
+                      var selectedCategory = $(this).val();
+                      console.log("ddddddddddddddd", selectedCategory);
+                  
+                      const url = `/productsubcategoryupdate/${encodeURIComponent(selectedCategory)}?category=${encodeURIComponent(selectedCategory)}`;
+                  
+                      fetch(url, {
+                        method: 'GET'
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                        // Clear the product_sub_category options
+                        const productSubCategory = document.getElementById('product_sub_category');
+                        productSubCategory.innerHTML = '';
+                        
+                        // Add new options based on the response data
+                        data.subcategories.forEach(subcategory => {
+                          const option = document.createElement('option');
+                          option.value = subcategory;
+                          option.textContent = subcategory;
+                          productSubCategory.appendChild(option);
+                        });
+                      })
+                      .catch(error => {
+                        console.error(error);
+                      });
+                    });
+                  });
+                  
+            </script>
+
+
+            <div class="form-group">
+                <label for="product_sub_category" class="text-white mt-4">Product SubCategory</label>
+                <div class="form-control w-25">
+                    <select name="product_sub_category" id="product_sub_category" class="form-select" aria-label="Default select example" required>
+                        <option selected value="{{ product.product_sub_category }}">{{ product.product_sub_category }}</option>
+                        {% for subcategory in subcategories %}
+                        <option value='{{ subcategory }}' class="form-control">{{ subcategory }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        
+            <div class="form-group">
+                <label for="product_price" class="text-white mt-4">Product Price</label>
+                <input type="text" class="form-control w-25" id="product_price" name="product_price" value="{{ product.product_price }}">
+            </div>
+
+            <div class="form-group">
+                <label for="sales_price" class="text-white mt-4">Sales Price</label>
+                <input type="text" class="form-control w-25" id="sales_price" name="sales_price" value="{{ product.sales_price }}">
+            </div>
+
+            <div class="form-group">
+                <label for="profit_margin" class="text-white mt-4">Product Margin</label>
+                <input type="text" class="form-control w-25" id="profit_margin" name="profit_margin" value="{{ product.profit_margin }}">
+            </div>
+
+            <div class="form-group">
+                <label for="stock" class="text-white mt-4">Stock</label>
+                <input type="text" class="form-control w-25" id="stock" name="stock" value="{{ product.stock }}">
+            </div>
+
+            <div class="form-group">
+                <label for="lastAction" class="text-white mt-4">Select Unit</label>
+                <select class="form-control w-25" id="lastAction" name="lastAction" required>
+                  <option value="pc" {% if default_unit == 'pc' %} selected {% endif %}>Number of Pieces</option>
+                  <option value="wgt" {% if default_unit == 'wgt' %} selected {% endif %}>Weight</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="piece" class="text-white mt-4">Number of pieces</label>
+                <input type="text" class="form-control w-25" id="piece" name="piece" value="{{ product.piece }}">
+            </div>
+
+            <div class="form-group">
+                <label for="weight" class="text-white mt-4">Net weight</label>
+                <input type="text" class="form-control w-25" id="weight" name="weight" value="{{ product.weight }}">
+            </div>
+
+            <div class="form-group">
+                <label for="duration" class="text-white mt-4">Delivery Duration</label>
+                <input type="text" class="form-control w-25" id="duration" name="duration" value="{{ converted_minutes }}">
+            </div>
+
+            <h3 class="mt-4 mb-2 text-white">Nutritional Information</h3>
+            
+            <div class="form-group">
+                <label for="total_energy" class="text-white mt-4">Total Energy</label>
+                <input type="text" class="form-control w-25" id="total_energy" name="total_energy" value="{{ product.total_energy }}">
+            </div>
+
+            <div class="form-group">
+                <label for="carbohydrate" class="text-white mt-4">Carbohydrate</label>
+                <input type="text" class="form-control w-25" id="carbohydrate" name="carbohydrate" value="{{ product.carbohydrate }}">
+            </div>
+
+            <div class="form-group">
+                <label for="fat" class="text-white mt-4">Fat</label>
+                <input type="text" class="form-control w-25" id="fat" name="fat" value="{{ product.fat }}">
+            </div>
+
+            <div class="form-group">
+                <label for="protein" class="text-white mt-4">Protein</label>
+                <input type="text" class="form-control w-25" id="protein" name="protein" value="{{ product.protein }}">
+            </div>
+
+            <br>
+            <button type="submit" class="btn btn-primary mb-5">Update</button>
+        </form>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

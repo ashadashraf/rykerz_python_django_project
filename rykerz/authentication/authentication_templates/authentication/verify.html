@@ -1,0 +1,60 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verify</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <style>
+        .login-container {
+            background: url("{% static 'images/only/bg-img1.png' %}") no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+        }
+
+        .login-form {
+            background-color: rgb(255, 255, 255);
+            padding: 20px;
+            opacity: 75%;
+            margin: 130px auto;
+            max-width: 400px;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+        <div class="container position-relative">
+            <br>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-warning alert-dismissible fade show position-absolute z-3 w-50" role="alert">
+                        {{message}}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col-md-6 offset-md-3 login-form">
+                <center><h4 class="text-black">Verify yor account</h4></center>
+                <form action="{% url 'verify' mobile %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="otp" class="text-black">Enter the OTP</label>
+                        <input type="text" class="form-control" placeholder="enter here" name="otp" required>
+                    </div>
+                    <center><button type="submit" class="btn btn-success">Submit</button></center>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/custom.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>

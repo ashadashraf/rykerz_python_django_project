@@ -1,0 +1,88 @@
+{% extends 'adminside/base.html' %}
+
+{% block content %}
+
+<main>
+    <div class="container-fluid px-4 position-relative">
+        <h1 class="mt-4">Orders</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Overview</li>
+        </ol>
+        {% if neworder %}
+        <div class="toast position-absolute top-0 start-50 translate-middle-x" 
+          data-bs-autohide="true" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header text-white bg-black">
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn bg-light btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body ">
+            You have {{ neworder.count }} new orders
+          </div>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between">
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Search by product name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+        <br>
+        {% if orders %}
+        <table class="table table-striped table-dark">
+            <thead>
+              <tr>
+                <th scope="col">Order Id</th>
+                <th scope="col">Product Id</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Customer Id</th>
+                <th scope="col">Order Status</th>
+                <th scope="col">Payment Status</th>
+                <th scope="col">Amount</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in orders %}
+              <tr>
+                <td>{{order.id}}</td>
+                <td>{{order.product.id}}</td>
+                <td>{{order.product}}</td>
+                <td>{{order.quantity}}</td>
+                <td>{{order.customer.mobile}}</td>
+                <td>{{order.order_status}}</td>
+                <td>{{order.payment_status}}</td>
+                <td>{{order.amount}}</td>
+                <td>
+                  {% if order.order_status == 'requesting' %}
+                  <a href="{% url 'updateorderstatus' order.id 'requesting' %}" class="btn btn-success" type="button">accept</a>
+                  <a href="{% url 'updateorderstatus' order.id 'cancel' %}" class="btn btn-danger" type="button">cancel</a>
+                  {% elif order.order_status == 'confirmed' %}
+                  <a href="{% url 'updateorderstatus' order.id 'confirmed' %}" class="btn btn-success" type="button">packed</a>
+                  {% elif order.order_status == 'packed' %}
+                  <a href="{% url 'updateorderstatus' order.id 'packed' %}" class="btn btn-success" type="button">shipped</a>
+                  {% elif order.order_status == 'shipped' %}
+                  <a href="{% url 'updateorderstatus' order.id 'shipped' %}" class="btn btn-success" type="button">delivered</a>
+                  {% endif %}
+                  <a href="{% url 'displayorderdetails' order.id %}" class="btn btn-success" type="button">order details</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <h4 class="d-flex justify-content-center">You have no orders yet!</h4>
+        {% endif %}
+    </div>
+</main>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var toastElement = document.querySelector('.toast');
+      var toast = new bootstrap.Toast(toastElement);
+      toast.show();
+  });
+</script>
+
+{% endblock %}

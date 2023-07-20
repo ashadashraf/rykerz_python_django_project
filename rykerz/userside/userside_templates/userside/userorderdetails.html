@@ -1,0 +1,128 @@
+{% extends 'userside/profilebar.html' %}
+{% block content %}
+
+<div class="ml-5 mt-3">
+  <div class="row">
+    <h3 class="text-white mt-3 ms-5 mb-2">Order Details</h3>
+    <div class="row m-3">
+      <div class="col d-flex justify-content-start"><h6 class="text-white">Order Id: #{{ order.bulk_order.bulk_order }}</h6></div>
+      {% if bulk_order.final_amount %}
+      <div class="col d-flex justify-content-end"><a href="{% url 'orderinvoice' order.bulk_order.bulk_order %}"><h6 class="text-primary d-flex justify-content-end pe-5 pb-3">Bill Invoice</h6></a></div>
+      {% endif %}
+    </div>
+    <div class="col-4">
+        <div class="card" style="background-color: rgb(30, 48, 48); height: 262px;">
+            <div class="card-header text-white">
+              <b>Shipping Address</b>
+            </div>
+            <div class="card-body">
+              <p class="card-text text-white">{{ order.bulk_order.address.full_name }}<br> {{ order.bulk_order.address.building }}<br> {{ order.bulk_order.address.area }} {{ order.bulk_order.address.landmark }}<br> {{ order.bulk_order.address.city }}, {{ order.bulk_order.address.state }} - {{ order.bulk_order.address.pincode }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card" style="background-color: rgb(30, 48, 48); height: 262px;">
+            <div class="card-header text-white">
+              <b>Payment Method</b>
+            </div>
+            <div class="card-body">
+              <p class="card-text text-white">Pay on delivery (Cash/UPI) available</p>
+              <p class="card-text text-white">Razorpay available</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card" style="background-color: rgb(30, 48, 48); height: 262px;">
+            <div class="card-header text-white">
+              <b>Order Summary</b>
+            </div>
+            <div class="card-body row">
+              <div class="col-9">
+                <p class="card-text text-white">Item(s) Subtotal :</p>
+                <p class="card-text text-white">Shipping :</p>
+                <p class="card-text text-white">Total :</p>
+                <p class="card-text text-white">Promotion Applied :</p>
+                <h5 class="card-text text-white">Grand Total</h5>
+              </div>
+              <div class="col-3">
+                <p class="card-text text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                  </svg> {{ product_total }}</p>
+                <p class="card-text text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                  </svg> 20.0</p>
+                <p class="card-text text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                  </svg> {{ order_total }}</p>
+                <p class="card-text text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                  </svg>{% if order.bulk_order.coupon is None %}
+                            0.0
+                        {% else %}
+                        {{ coupon_amount }}
+                        {% endif %}
+                    </p>
+                <h5 class="card-text text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                    <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                  </svg> {{ order.bulk_order.final_amount }}</h5>
+              </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  {% for ord in orders %}
+  {% if ord.bulk_order == order.bulk_order %}
+  <div class="container border border-white m-5">
+      <div class="card-body row p-4 d-flex align-items-center">
+          <div class="col-2">
+              <a href="{% url 'userdisplayproductdetails' ord.product.id ord.customer.id %}"><img src="/media/{{ ord.product.product_image_id.image1 }}" class="align-self-start mr-3 rounded-3" alt="image1" width="180px" height="120px"></a>
+          </div>
+          <div class="col-3">
+              <p class="card-text">
+                  <h4 class="text-light"><b>{{ ord.product.product_name.upper }}</b>&nbsp;&nbsp; x {{ ord.quantity }}</h4>
+                  <small class="text-light">{{ ord.product.product_label }}</small>
+              </p>
+          </div>
+          <div class="col-4">
+              <h5 class="card-title text-light mt-3 pt-3">Arriving {{ ord.bulk_order.delivery_date }}</h5>
+              {% if ord.order_status == 'requesting' %}
+              <p class="text-light p-3">Status : <span  class="text-info">{{ ord.order_status }}</span></p>
+              {% elif ord.order_status == 'confirmed' %}
+              <p class="text-light p-3">Status : <span  class="text-primary">{{ ord.order_status }}</span></p>
+              {% elif ord.order_status == 'packed' %}
+              <p class="text-light p-3">Status : <span  class="text-warning">{{ ord.order_status }}</span></p>
+              {% elif ord.order_status == 'shipped' %}
+              <p class="text-light p-3">Status : <span  class="text-success">{{ ord.order_status }}</span></p>
+              {% elif ord.order_status == 'delivered' %}
+              <p class="text-light p-3">Status : <span  class="text-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" style="margin-bottom: 5px; " fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                  </svg>
+                  <i class="bi bi-check-circle-fill">{{ ord.order_status }}</i></span>
+              </p>
+              {% elif ord.order_status == 'cancelled' %}
+              <p class="text-light p-3">Status : <span  class="text-danger">{{ ord.order_status }}</span></p>
+              {% elif ord.order_status == 'returned' %}
+              <p class="text-light p-3">Status : <span  class="text-danger">{{ ord.order_status }}</span></p>
+              {% endif %}
+          </div>
+          <div class="col-3 d-flex justify-content-around">
+              <h4 class="text-success"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 1 16 16">
+                <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+              </svg>{{ ord.total_amount }}</h4>
+              <br>
+              <br>
+              {% if ord.order_status == 'cancelled' %}
+              <a href="#" class="btn btn-outline-light d-flex align-items-center">Cancelled</a>
+              {% else %}
+              <a href="{% url 'singleorder' ord.id %}" class="btn btn-outline-light d-flex align-items-center">Return/View Order</a>
+              {% endif %}
+          </div>
+          
+      </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+{% endblock %}
