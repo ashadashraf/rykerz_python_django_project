@@ -30,6 +30,7 @@
         <div class="text-light">{{ product.product_description }}</div>
         <br>
         <div class="row mt-4 d-flex justify-content-around">
+            {% if product.unit %}
             <div class="col-3">
                 <div class="card text-center" style="background-color: rgb(236, 191, 132);">
                     <div class="card-body">
@@ -38,6 +39,7 @@
                     </div>
                 </div>
             </div>
+            {% else %}
             <div class="col-3">
                 <div class="card text-center" style="background-color: rgb(236, 191, 132);">
                     <div class="card-body">
@@ -46,6 +48,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
             <div class="col-3">
                 <div class="card text-center" style="background-color: rgb(236, 191, 132);">
                     <div class="card-body">

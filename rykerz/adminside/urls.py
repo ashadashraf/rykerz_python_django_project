@@ -35,6 +35,9 @@ urlpatterns = [
     path('displayoffers', views.display_offers, name='displayoffers'),
     path('addoffer/<int:id>', views.add_offer, name='addoffer'),
     path('displayorderdetails/<int:order_id>', views.display_order_details, name='displayorderdetails'),
+    path('removeoffer/<int:id>', views.remove_offer, name='removeoffer'),
+    path('displaytransactions', views.display_transactions, name='displaytransactions'),
+    path('adminsidesearch/<str:range>', views.adminside_search, name='adminsidesearch'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

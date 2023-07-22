@@ -8,6 +8,7 @@
           <h3 class="card-title">PRODUCT : {{ order.product.product_name.upper }}</h3>
           <br>
           <b><p class="card-dark">Order ID : {{ order.id }}</p></b>
+          <b><p class="card-dark">BulkOrder ID : {{ order.bulk_order.bulk_order }}</p></b>
           <b><p class="card-dark">Customer ID : {{ order.customer.id }}</p></b>
           <b><p class="card-dark">Customer Name : {{ order.customer.name }}</p></b>
           <b><p class="card-text text-dark">Shipping Address: <br>{{ order.bulk_order.address.full_name }}, {{ order.bulk_order.address.building }}, {{ order.bulk_order.address.area }}, {{ order.bulk_order.address.landmark }}, {{ order.bulk_order.address.city }}, {{ order.bulk_order.address.state }} - {{ order.bulk_order.address.pincode }}</p></b>

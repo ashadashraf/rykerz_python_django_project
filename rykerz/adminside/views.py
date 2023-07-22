@@ -22,7 +22,7 @@ def base(request):
         recent_orders = Order.objects.all().exclude(order_status__in=['cancelled','returned','delivered']).order_by('id')
         daily_start_date = datetime.combine(datetime.now().date(), time(hour=12))
         daily_end_date = daily_start_date + timedelta(days=1)
-        daily_sales = Transaction.objects.filter(transaction_date__date__range=[daily_start_date, daily_end_date])
+        daily_sales = Transaction.objects.filter(transaction_date__date__range=[daily_start_date, daily_end_date],transaction_status='Success')
         total_daily_sales = daily_sales.aggregate(total_amount=Sum('transaction_amount'))['total_amount']
         daily_sales_count = daily_sales.count()
         if total_daily_sales:
@@ -34,7 +34,7 @@ def base(request):
         product_profit = Product.objects.annotate(
             total_profit=Subquery(
                 Transaction.objects.filter(
-                    bulk_order__order__product_id=OuterRef('pk')
+                    bulk_order__order__product_id=OuterRef('pk'),transaction_status='Success'
                 ).values('bulk_order__order__product_id').annotate(
                     total_amount=Sum('transaction_amount', output_field=DecimalField()),
                     cost_price=Sum(
@@ -45,8 +45,9 @@ def base(request):
             )
         )
         weekly_start_date = daily_end_date - timedelta(days=7)
-        weekly_sales = Transaction.objects.filter(transaction_date__date__range=[weekly_start_date, daily_end_date])
+        weekly_sales = Transaction.objects.filter(transaction_date__date__range=[weekly_start_date, daily_end_date],transaction_status='Success')
         weekly_sales_count = weekly_sales.count()
+        total_weekly_sales = weekly_sales.aggregate(total_amount=Sum('transaction_amount'))['total_amount']
 
         weekday_names = []
         current_date = weekly_start_date
@@ -63,16 +64,19 @@ def base(request):
         while current_date < end_date:
             month_start_date = current_date.replace(day=1)
             month_end_date = month_start_date + relativedelta(months=1) - timedelta(days=1)
-            monthly_sale = Transaction.objects.filter(transaction_date__date__range=[month_start_date, month_end_date]).aggregate(total=Sum('transaction_amount'))
+            monthly_sale = Transaction.objects.filter(transaction_date__date__range=[month_start_date, month_end_date],transaction_status='Success').aggregate(total=Sum('transaction_amount'))
             month_name = current_date.strftime('%B')  # Get the name of the month
             monthly_sales.append({'month': month_name, 'total_sales': monthly_sale['total'] or 0})
             current_date += relativedelta(months=1)
         
+        current_date = datetime.now().date()
+        first_day_of_month = current_date.replace(day=1)
+        monthly_sales_count = Transaction.objects.filter(transaction_date__date__range=[first_day_of_month, current_date],transaction_status='Success').count()
         total_monthly_sales = sum(item['total_sales'] for item in monthly_sales)
         
         total_transaction = Transaction.objects.filter(transaction_status='Success').aggregate(total_amount=Sum('transaction_amount'))
         total_amount = total_transaction['total_amount']
-        total_order_count = Transaction.objects.count()
+        total_order_count = Transaction.objects.filter(transaction_status='Success').count()
         print(total_daily_sales, daily_sales_count, orders, weekday_names, weekly_sales, weekly_sales_count, monthly_sale, total_monthly_sales, total_amount)
         context = {
             'daily_sales': total_daily_sales,
@@ -84,8 +88,10 @@ def base(request):
             'product_profit': product_profit,
             'weekday_names': weekday_names,
             'weekly_sales': weekly_sales,
+            'total_weekly_sales': total_weekly_sales,
             'weekly_sales_count': weekly_sales_count,
             'monthly_sales': monthly_sales,
+            'monthly_sales_count': monthly_sales_count,
             'total_monthly_sales': total_monthly_sales,
             'total_amount': total_amount,
             'total_count': total_order_count,
@@ -113,7 +119,7 @@ def add_product(request):
         product_image2 = request.FILES.get('img-2')
         product_image3 = request.FILES.get('img-3')
         product_price = request.POST['product_price']
-        sales_price = request.POST['sales_price']
+        product_tax = request.POST['product_tax']
         profit_margin = request.POST['profit_margin']
         stock = request.POST['stock']
         unit = request.POST['lastAction']
@@ -169,7 +175,7 @@ def add_product(request):
 
         product = Product(product_name=product_name,product_category=category, product_sub_category=sub_category, product_label=product_label, product_description=product_description,
                           product_status=product_status,product_image_id=images,
-                          product_price=product_price,sales_price=sales_price,profit_margin=profit_margin,stock=stock,unit=unit,piece=piece,weight=weight,
+                          product_price=product_price,product_tax=product_tax,profit_margin=profit_margin,stock=stock,unit=unit,piece=piece,weight=weight,
                           duration=duration_str,total_energy=total_energy,carbohydrate=carbohydrate,fat=fat,protein=protein)
         product.save()
         
@@ -209,7 +215,7 @@ def update_product(request, id):
         product_description = request.POST['product_description']
         product_status = request.POST['product_status']
         product_price = request.POST['product_price']
-        sales_price = request.POST['sales_price']
+        product_tax = request.POST['product_tax']
         profit_margin = request.POST['profit_margin']
         stock = request.POST['stock']
         unit = request.POST['lastAction']
@@ -256,7 +262,7 @@ def update_product(request, id):
         product.product_description = product_description
         product.product_status = product_status
         product.product_price = product_price
-        product.sales_price = sales_price
+        product.product_tax = product_tax
         product.profit_margin = profit_margin
         product.stock = stock
         product.unit = unit
@@ -267,6 +273,9 @@ def update_product(request, id):
         product.carbohydrate = carbohydrate
         product.fat = fat
         product.protein = protein
+
+        product.product_tax = None
+        product.expiry_date = None
         product.save()
 
 
@@ -545,14 +554,18 @@ def add_coupon(request):
 
 
 def display_offers(request):
-    products = Product.objects.all()
-    return render(request, 'adminside/displayoffers.html',{'products':products})
+    products = Product.objects.filter(product_status=True)
+    categories = Category.objects.filter(category_status=True)
+    return render(request, 'adminside/displayoffers.html',{'products':products,'categories':categories})
 
 def add_offer(request, id):
     if request.method == 'POST':
         offer_type = request.POST['offertype']
         is_price_based = request.POST['offermethod']
         expire = request.POST['expire']
+        if str(expire) < str(datetime.today()):
+            messages.warning(request, 'Enter a valid expire date')
+            return redirect('displayoffers')
 
         if offer_type == 'product':
             product = request.POST['product']
@@ -561,36 +574,57 @@ def add_offer(request, id):
             category = request.POST['category']
             product = None
         
-        if is_price_based:
+        if is_price_based == 'True':
             offer_price = request.POST['offerprice']
             offer_price = float(offer_price)
+            offer_percentage = 0
         else:
             offer_percentage = request.POST['offerpercentage']
             offer_percentage = float(offer_percentage)
+            offer_price = 0
         
         if offer_type == 'product':
             product = Product.objects.get(product_name=product)
-            if is_price_based:
+            if is_price_based == "True":
                 product.offer_price = product.sales_price - offer_price
                 product.expiry_date = expire
             else:
                 product.offer_price = product.sales_price - (product.sales_price* (offer_percentage/100))
                 product.expiry_date = expire
             product.save()
+            if product.product_price > product.offer_price:
+                product.offer_price = None
+                product.expiry_date = None
+                product.save()
+                messages.warning(request, 'offer price cannot be less than product price')
+                return redirect('displayoffers')
+            
         if offer_type == 'category':
             products = Product.objects.filter(product_category=category)
             for product in products:
-                if is_price_based:
+                if is_price_based == "True":
                     product.offer_price = product.sales_price - offer_price
                     product.expiry_date = expire
                 else:
                     product.offer_price = product.sales_price - (product.sales_price* (offer_percentage/100))
                     product.expiry_date = expire
                 product.save()
+                if product.product_price > product.offer_price:
+                    product.offer_price = None
+                    product.expiry_date = None
+                    product.save()
+                    print(2)
+                    messages.warning(request, 'offer price cannot be less than product price')
+                    return redirect('displayoffers')
+                
+    return redirect('displayoffers')
 
-        return redirect('displayoffers')
-    
-    return render(request, 'adminside/addcategory.html')
+def remove_offer(request,id):
+    product = Product.objects.get(id=id)
+    product.offer_price = None
+    product.expiry_date = None
+    product.save()
+    return redirect('displayoffers')
 
 def display_orders(request):
     orders = Order.objects.all().order_by('-id')
@@ -636,3 +670,20 @@ def update_order_status(request, order_id, status):
                 transaction.save()
     order.save()
     return redirect('displayorders')
+
+
+def display_transactions(request):
+    transactions = Transaction.objects.all()
+    return render(request, 'adminside/displaytransactions.html',{'transactions':transactions})
+
+
+def adminside_search(request, range):
+    if request.method == "POST":
+        search = request.POST['search']
+        if range == 'products':
+            try:
+                products = Product.objects.filter(product_name__istartswith=search)
+            except:
+                pass
+            return render(request, 'adminside/displayproducts.html', {'products':products})
+    return redirect('dashboard')

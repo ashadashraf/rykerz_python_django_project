@@ -8,6 +8,7 @@
         <ol class="breadcrumb mb-4">
             <li class="breadcrumb-item active">Overview</li>
         </ol>
+        {% if products %}
         <div class="d-flex justify-content-between">
             <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
                 <div class="input-group">
@@ -20,68 +21,6 @@
                 Add Offer
             </button>
             
-            <!-- Modal -->
-            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="POST" action="{% url 'addoffer' user.id %}">
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="offertype" class="text-white mt-4">Offer Type</label>
-                                <div class="form-control w-25">
-                                    <select name="offertype" id="offertype" class="form-select" aria-label="Default select example" required>
-                                        <option selected>Select the option</option>
-                                        <option value="product" class="form-control">Product</option>
-                                        <option value="category" class="form-control">Category</option>
-                                    </select>
-                                </div>
-                                <label for="product" class="text-black mt-4">Product Name</label>
-                                <div class="form-control w-25">
-                                    <select name="product" id="product" class="form-select" aria-label="Default select example" required>
-                                        <option selected>Select the option</option>
-                                        {% for product in products %}
-                                        <option value="{{ product.product_name }}" class="form-control">{{ product.product_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <label for="category" class="text-black mt-4">Category Name</label>
-                                <div class="form-control w-25">
-                                    <select name="category" id="category" class="form-select" aria-label="Default select example" required>
-                                        <option selected>Select the option</option>
-                                        {% for category in categories %}
-                                        <option value="{{ category.category_name }}" class="form-control">{{ category.category_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <label for="offermethod" class="text-white mt-4">Offer Method</label>
-                                <div class="form-control w-25">
-                                    <select name="offermethod" id="offermethod" class="form-select" aria-label="Default select example" required>
-                                        <option selected>Select the option</option>
-                                        <option value="True" class="form-control">Price_based</option>
-                                        <option value="False" class="form-control">Discount_based</option>
-                                    </select>
-                                </div>
-                                <label for="offerpercentage" class="text-black mt-4">Discount Percentage</label>
-                                <input type="text" class="form-control w-25" value="0" id="offerpercentage" name="offerpercentage">
-                                <label for="offerprice" class="text-black mt-4">Offer Price</label>
-                                <input type="text" class="form-control w-25" value="0" id="offerprice" name="offerprice">
-                                <label for="expire" class="text-black mt-4">Expiry Date</label>
-                                <input type="date" class="form-control w-25" id="expire" name="expire">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-dark">SAVE</button>
-                        </div>
-                    </form>
-                </div>
-                </div>
-            </div>
         </div>
         <br>
         <table class="table table-striped table-dark">
@@ -93,10 +32,12 @@
                 <th scope="col">Sales Price</th>
                 <th scope="col">Offer Price</th>
                 <th scope="col">Offer Expire Date</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {% for product in products %}
+              {% if product.offer_price %}
               <tr>
                 <td>{{product.id}}</td>
                 <td>{{product.product_name}}</td>
@@ -104,10 +45,82 @@
                 <td>{{product.sales_price}}</td>
                 <td>{{product.offer_price}}</td>
                 <td>{{product.expiry_date}}</td>
+                <td><a href="{% url 'removeoffer' product.id %}"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></a></td>
               </tr>
+              {% endif %}
               {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                Add Offer
+            </button>
+        </div>
+        <h4 class="d-flex justify-content-center">You have no offer</h4>
+        {% endif %}
+        <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'addoffer' user.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="offertype" class="text-white mt-4">Offer Type</label>
+                            <div class="form-control w-25">
+                                <select name="offertype" id="offertype" class="form-select" aria-label="Default select example" required>
+                                    <option selected>Select the option</option>
+                                    <option value="product" class="form-control">Product</option>
+                                    <option value="category" class="form-control">Category</option>
+                                </select>
+                            </div>
+                            <label for="product" class="text-black mt-4">Product Name</label>
+                            <div class="form-control w-25">
+                                <select name="product" id="product" class="form-select" aria-label="Default select example" required>
+                                    <option selected>Select the option</option>
+                                    {% for product in products %}
+                                    <option value="{{ product.product_name }}" class="form-control">{{ product.product_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label for="category" class="text-black mt-4">Category Name</label>
+                            <div class="form-control w-25">
+                                <select name="category" id="category" class="form-select" aria-label="Default select example" required>
+                                    <option selected>Select the option</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.category_name }}" class="form-control">{{ category.category_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label for="offermethod" class="text-white mt-4">Offer Method</label>
+                            <div class="form-control w-25">
+                                <select name="offermethod" id="offermethod" class="form-select" aria-label="Default select example" required>
+                                    <option selected>Select the option</option>
+                                    <option value="True" class="form-control">Price_based</option>
+                                    <option value="False" class="form-control">Discount_based</option>
+                                </select>
+                            </div>
+                            <label for="offerpercentage" class="text-black mt-4">Discount Percentage</label>
+                            <input type="text" class="form-control w-25" value="0" id="offerpercentage" name="offerpercentage">
+                            <label for="offerprice" class="text-black mt-4">Offer Price</label>
+                            <input type="text" class="form-control w-25" value="0" id="offerprice" name="offerprice">
+                            <label for="expire" class="text-black mt-4">Expiry Date</label>
+                            <input type="date" class="form-control w-25" id="expire" name="expire">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-dark">SAVE</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
     </div>
 </main>
 

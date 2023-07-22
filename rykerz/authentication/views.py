@@ -290,8 +290,8 @@ def verify_code(request, mobile):
             login(request, user)
         else:
             messages.warning(request, 'otp failed to login')
-            to_be_deleted =  CustomUser.objects.filter(is_verified=False)
-            del to_be_deleted
+            to_be_deleted =  CustomUser.objects.filter(mobile=mobile,is_verified=False)
+            to_be_deleted.delete()
             return redirect('userotplogin')
 
         if user.is_verified is True and user.is_active is True and user.is_admin is False and user.is_user is True:

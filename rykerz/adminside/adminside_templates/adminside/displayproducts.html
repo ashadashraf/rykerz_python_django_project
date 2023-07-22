@@ -138,10 +138,11 @@
         
         
         <div class="d-flex justify-content-between">
-            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0" method="post" action="{% url 'adminsidesearch' 'products' %}">
+              {% csrf_token %}
                 <div class="input-group">
-                    <input class="form-control" type="text" placeholder="Search by product name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                    <input class="form-control" name="search" type="text" placeholder="Search by product name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="submit"><i class="fas fa-search"></i></button>
                 </div>
             </form>
             <a class="btn btn-primary" href="add-product" role="button">Add Product</a>
@@ -200,17 +201,10 @@
           </tbody>
       </table>
       {% else %}
-      <div class="d-flex justify-content-between">
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-            <div class="input-group">
-                <input class="form-control" type="text" placeholder="Search by product name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-                <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
-            </div>
-        </form>
-        <a class="btn btn-primary" href="add-product" role="button">Add Product</a>
+      <div class="d-flex justify-content-end">
+        <a class="btn btn-primary me-5" href="add-product" role="button">Add Product</a>
       </div>
-      <br>
-      <h4>Your have no products</h4>
+      <h4 class="d-flex justify-content-center">You have no products</h4>
       {% endif %}
     </div>
 </main>

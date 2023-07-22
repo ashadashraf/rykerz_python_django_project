@@ -29,7 +29,12 @@ def user_home(request,id):
         InstantBuy.objects.all().delete()
         Cart.objects.filter(customer_id=id).update(selected=False)
         user = CustomUser.objects.get(id=id)
-        return render(request, 'userside/home.html', {'user':user})
+        address = None
+        try:
+            address = Address.objects.get(customer=user, active_address=True)
+        except:
+            pass
+        return render(request, 'userside/home.html', {'user':user, 'address':address})
     else:
         return redirect('userlogin')
 
@@ -38,7 +43,11 @@ def display_product(request, name, customer_id):
         return redirect('userlogin')
     InstantBuy.objects.all().delete()
     user = CustomUser.objects.get(id=customer_id)
-    category = Category.objects.get(category_name=name)
+    try:
+        category = Category.objects.get(category_name=name)
+    except:
+        messages.warning(request, "Category doesn't exist")
+        return redirect('home', customer_id)
     Cart.objects.filter(customer=user).update(selected=False)
     if category.category_status is True:
         subcategory = SubCategory.objects.filter(category=name, sub_category_status=True)
@@ -96,7 +105,10 @@ def add_to_cart(request, product_id, customer_id, quantity, range):
         print('entered')
         cart = Cart.objects.get(customer=customer,product=product)
         cart.quantity += quantity
-        cart.unit_price = Product.objects.get(id=product_id).sales_price
+        if product.offer_price:
+            cart.unit_price = Product.objects.get(id=product_id).offer_price
+        else:
+            cart.unit_price = Product.objects.get(id=product_id).sales_price
 
         cart.total_price = (cart.unit_price*cart.quantity)
         cart.save()
@@ -113,8 +125,12 @@ def add_to_cart(request, product_id, customer_id, quantity, range):
             return redirect('userdisplayproductdetails', product_id, customer_id)
         return redirect('user-d-product', category, customer_id)
 
-    unit_price = Product.objects.get(id=product_id).sales_price
+    if product.offer_price:
+        unit_price = Product.objects.get(id=product_id).offer_price
+    else:
+        unit_price = Product.objects.get(id=product_id).sales_price
     total_price = (unit_price*quantity)
+    total_price = round(total_price, 2)
     cart = Cart(customer=customer, product=product, quantity=quantity, unit_price=unit_price, total_price=total_price)
     cart.save()
     category = product.product_category
@@ -273,6 +289,19 @@ def apply_coupon(request, id, amount, payableamount):
             return JsonResponse(response_data)
         
         coupon = Coupon.objects.get(coupon_code=code)
+        if str(coupon.expiry_date) < str(datetime.today()):
+            allowance_discount = 0
+            cart_items = Cart.objects.filter(customer_id=id, selected=True)
+            total_price_sum = cart_items.aggregate(total=Sum('total_price')).get('total', 0) or 0
+            total_payable = total_price_sum + 20
+            response_data = {
+            'message': 'Success',
+            'code': code,
+            'allowance_discount': allowance_discount,
+            'payable_amount': total_payable,
+            'couponcode': code,
+            }
+            return JsonResponse(response_data)
         if coupon.min_purchase <= float(amount):
             if coupon.is_price_based:
                 allowance_discount = coupon.discount_price
@@ -445,6 +474,7 @@ def delete_address(request, id, address_id):
     return redirect('displayaddress', id)
 
 def place_order(request, id, final_amount, coupon_code, payment_mode):
+    print(final_amount)
     cart_items = Cart.objects.filter(customer=id, selected=True)
     customer = CustomUser.objects.get(id=id)
     if coupon_code is not None:
@@ -458,9 +488,15 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
     
     address = Address.objects.get(customer=customer, active_address=True)
     if coupon == False:
+        print(1)
         bulk_order = BulkOrder(bulk_order=uuid.uuid4(), address=address, payment_status=False, final_amount=final_amount)
         print(bulk_order)
+    elif str(coupon.expiry_date) < str(datetime.today()):
+        print(coupon.expiry_date, datetime.today(), datetime)
+        print(2)
+        bulk_order = BulkOrder(bulk_order=uuid.uuid4(), address=address, payment_status=False, final_amount=final_amount)
     else:
+        print(3)
         print(final_amount)
         if coupon.is_price_based:
             final_amount = float(final_amount) - coupon.discount_price
@@ -503,8 +539,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                     product = Product.objects.get(id=item.product.id)
                     if item.quantity <= product.stock:
                         product.stock -= item.quantity
-                        total_amount = product.sales_price*item.quantity
-                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=item.unit_price, total_amount=total_amount, bulk_order=bulk_order)
+                        if product.offer_price:
+                            total_amount = product.offer_price*item.quantity
+                            unit_price = product.offer_price
+                        else:
+                            total_amount = product.sales_price*item.quantity
+                            unit_price = product.sales_price
+                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         wallet.amount -= round(float(final_amount), 2)
                         wallet.save()
@@ -520,8 +561,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                     if item.quantity <= product.stock:
                         product.stock -= item.quantity
                         print(item.quantity)
-                        total_amount = product.sales_price*item.quantity
-                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=product.product_price, total_amount=total_amount, bulk_order=bulk_order)
+                        if product.offer_price:
+                            total_amount = product.offer_price*item.quantity
+                            unit_price = product.offer_price
+                        else:
+                            total_amount = product.sales_price*item.quantity
+                            unit_price = product.sales_price
+                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         wallet.amount -= round(float(final_amount), 2)
                         wallet.save()
@@ -549,8 +595,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                 product = Product.objects.get(id=item.product.id)
                 if item.quantity <= product.stock:
                     product.stock -= item.quantity
-                    total_amount = product.sales_price*item.quantity
-                    order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=False, amount=item.unit_price, total_amount=total_amount, bulk_order=bulk_order)
+                    if product.offer_price:
+                        total_amount = product.offer_price*item.quantity
+                        unit_price = product.offer_price
+                    else:
+                        total_amount = product.sales_price*item.quantity
+                        unit_price = product.sales_price
+                    order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=False, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                     order.save()
                     product.save()
                     InstantBuy.objects.all().delete()
@@ -564,8 +615,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                 if item.quantity <= product.stock:
                     product.stock -= item.quantity
                     print(item.quantity)
-                    total_amount = product.sales_price*item.quantity
-                    order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=False, amount=product.product_price, total_amount=total_amount, bulk_order=bulk_order)
+                    if product.offer_price:
+                        total_amount = product.offer_price*item.quantity
+                        unit_price = product.offer_price
+                    else:
+                        total_amount = product.sales_price*item.quantity
+                        unit_price = product.sales_price
+                    order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=False, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                     order.save()
                     product.save()
                     Cart.objects.filter(customer=id, selected=True, product=item.product.id).delete()
@@ -618,18 +674,23 @@ def order_details(request, order_id):
     valid_orders = Order.objects.filter(bulk_order=order.bulk_order).exclude(order_status__in=['cancelled','returned'])
     product_total = 0
     for ord in valid_orders:
-        product_total += (ord.quantity * ord.product.sales_price)
+        if ord.product.offer_price:
+            product_total += (ord.quantity * ord.product.offer_price)
+        else:
+            product_total += (ord.quantity * ord.product.sales_price)
     bulk_order = BulkOrder.objects.get(bulk_order=order.bulk_order.bulk_order)
     if bulk_order.delivery_charge:
-        order_total = product_total + bulk_order.delivery_charge
+        delivery_charge = bulk_order.delivery_charge
+        order_total = product_total + delivery_charge
     else:
-        order_total = product_total + 0
+        delivery_charge = 0
+        order_total = product_total + delivery_charge
     if bulk_order.coupon:
         if bulk_order.coupon.is_price_based:
             coupon_amount = bulk_order.coupon.discount_price
         else:
             total = Order.objects.filter(bulk_order=bulk_order).exclude(order_status__in=['cancelled','returned']).aggregate(total=Sum('total_amount')).get('total', 0) or 0
-            total += bulk_order.delivery_charge
+            total += delivery_charge
             coupon_amount = round(total * (bulk_order.coupon.discount_percentage/100), 2)
     else:
         coupon_amount = 0.0
@@ -675,7 +736,7 @@ def user_order_status(request, order_id, status):
         
     if order.payment_status is True:
         wallet.amount += order.total_amount - delivery_charge
-        transaction = Transaction.objects.filter(bulk_order=order.bulk_order)
+        transaction = Transaction.objects.get(bulk_order=order.bulk_order)
         transaction.transaction_amount -= (order.total_amount - delivery_charge)
         transaction.save()
         
@@ -722,6 +783,11 @@ def display_wallet(request, id):
 
 def single_order_details(request, order_id):
     order = Order.objects.get(id=order_id)
-    return render(request, 'userside/singleorderdetails.html',{'order':order})
+    seven_days_past = order.bulk_order.delivery_date + timedelta(days=2)
+    if str(datetime.now()) < str(seven_days_past):
+        expired = False
+    else:
+        expired = True
+    return render(request, 'userside/singleorderdetails.html',{'order':order, 'expire':expired})
 
 

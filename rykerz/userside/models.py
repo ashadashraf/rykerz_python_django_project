@@ -88,11 +88,12 @@ class Order(models.Model):
     total_amount = models.IntegerField(null=True)
 
     def save(self, *args, **kwargs):
-        self.total_amount = self.product.sales_price * self.quantity
-        print(self.tax_rate, self.product.product_price, self.quantity)
-        self.tax_amount = self.tax_rate * (self.product.product_price * self.quantity)
+        self.tax_rate = self.product.product_tax
+        if self.product.offer_price:
+            self.tax_amount = self.tax_rate * (self.product.offer_price * self.quantity)
+        else:
+            self.tax_amount = self.tax_rate * (self.product.sales_price * self.quantity)
         self.tax_amount = round(self.tax_amount, 2)
-        self.amount = self.total_amount - self.tax_amount
         super(Order, self).save(*args, **kwargs)
   
 

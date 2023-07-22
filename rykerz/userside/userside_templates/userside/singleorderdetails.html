@@ -18,9 +18,13 @@
           <b><p class="card-dark">Payment status : Pending</p></b>
           {% endif %}
           <br>
+          <b><p class="card-dark">Order Date : {{ order.bulk_order.date }}</p></b>
           <b><p class="card-dark">Expected arrival : {{ order.bulk_order.delivery_date }}</p></b>
           {% if order.order_status == 'delivered' %}
+          {% if expire %}
+          {% else %}
           <div class="d-flex justify-content-start"><a href="{% url 'userorderstatus' order.id 'return' %}" class="btn btn-outline-danger d-flex align-items-center justify-content-center">Return</a></div>
+          {% endif %}
           {% elif order.order_status == 'returned' %}
           <div class="d-flex justify-content-start"><a href="#" class="btn btn-outline-danger d-flex align-items-center justify-content-center">Returned</a></div>
           {% else %}

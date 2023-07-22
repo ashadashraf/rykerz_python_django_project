@@ -11,6 +11,7 @@ from urllib.parse import quote
 from userside.models import InstantBuy, Product, Order, BulkOrder, Cart, Transaction
 from django.contrib import messages
 from datetime import datetime
+from django.db.models import Avg
 
 
 # Create your views here.
@@ -80,11 +81,18 @@ def callback(request, customer, amount, bulkorder):
                     product = Product.objects.get(id=item.product.id)
                     if item.quantity <= product.stock:
                         product.stock -= item.quantity
-                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=product.product_price, total_amount=product.sales_price, bulk_order=bulk_order)
+                        if product.offer_price:
+                            total_amount = product.offer_price*item.quantity
+                            unit_price = product.offer_price
+                        else:
+                            total_amount = product.sales_price*item.quantity
+                            unit_price = product.sales_price
+                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         product.save()
                     else:
                         messages.success(request, '{{product.product_name}} is out of stock')
+                average_tax_amount = Order.objects.filter(bulk_order=bulk_order).aggregate(Avg('tax_amount'))['tax_amount__avg']
                 InstantBuy.objects.all().delete()
             else:
                 cart_items = Cart.objects.filter(customer=customer, selected=True)
@@ -92,13 +100,21 @@ def callback(request, customer, amount, bulkorder):
                     product = Product.objects.get(id=item.product.id)
                     if item.quantity <= product.stock:
                         product.stock -= item.quantity
-                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=product.product_price, total_amount=product.sales_price*item.quantity, bulk_order=bulk_order)
+                        if product.offer_price:
+                            total_amount = product.offer_price*item.quantity
+                            unit_price = product.offer_price
+                        else:
+                            total_amount = product.sales_price*item.quantity
+                            unit_price = product.sales_price
+                        order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         product.save()
                         Cart.objects.filter(customer=customer, selected=True, product=item.product.id).delete()
                     else:
                         messages.success(request, '{{product.product_name}} is out of stock')
+                average_tax_amount = Order.objects.filter(bulk_order=bulk_order).aggregate(Avg('tax_amount'))['tax_amount__avg']
             bulk_order.payment_status = True
+            bulk_order.tax_amount = average_tax_amount
             bulk_order.save()
             transaction = Transaction(bulk_order=bulk_order, transaction_mode='razorpay', payment_gateway_id=rp_order.payment_id, transaction_amount=bulk_order.final_amount, transaction_date=datetime.now(), transaction_status=PaymentStatus.SUCCESS)
             transaction.save()
