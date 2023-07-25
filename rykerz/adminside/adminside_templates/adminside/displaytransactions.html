@@ -9,7 +9,7 @@
             <li class="breadcrumb-item active">Overview</li>
         </ol>
         <div class="d-flex justify-content-between">
-            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0" action="{% url 'adminsidesearch' 'transactions' %}" method="post">
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0" action="{% url 'adminsidesearch' 'transactions' 'None' %}" method="post">
                 {% csrf_token %}
                   <div class="input-group">
                       <input class="form-control" name="search" type="search" placeholder="Search by transaction id" aria-label="Search for..." aria-describedby="btnNavbarSearch" />

@@ -13,7 +13,7 @@
   <div class="bg-black">
     <br>
     <div class="category-box bg-white">
-      <h3 class="display-3 font-weight-bold text-center">C A T E G O R I E S</h3>
+      <h3 class="display-4 font-weight-bold text-center">C A T E G O R I E S</h3>
     </div>
   </div>
   <div class="bg-black">
@@ -49,48 +49,49 @@
       <br>
       <h2 class="pt-2 pl-5 pb-4 ml-4 text-white">CHICKEN</h2>
       <div class="row d-flex justify-content-start ml-5 mr-5">
-        <div class="col-md-4 col-sm-6 mb-5">
-          <div class="card c-card">
-            <img src="static/images/chickenboneless-img6.jpg" class="card-img-top" alt="image">
-            <div class="card-body">
-              <h5 class="card-title">Chicken Drumstick - Pack Of 6</h5>
-              <p class="card-text">Juicy bone from chicken drumstick,cut from the leg</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <h4 class="card-text">$ 210.0</h4>
-              <small class="text-muted">90 mins</small>
-              <a href="#" class="btn btn-primary mr-2">Add</a>
-            </div>
+        <div class="row bg-black p-5 d-flex justify-content-right">
+          {% for bst in top_chicken_products %}
+          <div class="card-group col-md-3 col-sm-6 mb-5">
+              <div class="card c-card rounded-2">
+                  <div class="image-container">
+                      <a href="{% url 'userdisplayproductdetails' bst.product.id user.id %}"><img src="/media/{{ bst.product.product_image_id.image1 }}" class="cardimages card-img-top rounded-2 p-1" alt="image"></a>
+                  </div>
+                
+                  <div class="card-body row">
+                      <div class="col-9">
+                          <h5 class="card-title">{{ bst.product.product_name }}</h5>
+                      </div>
+                      <p class="card-text">{{ bst.product.product_label }}</p>
+                  </div>
+                  <div class="card-footer d-flex justify-content-between align-items-center">
+                      {% if bst.product.offer_price %}
+                      <h4 class="card-text">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                          <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                          </svg>
+                          {{ bst.product.offer_price }}
+                      </h4>
+                      <h6 class="card-text">
+                          <del><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                          <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                          </svg>
+                          {{ bst.product.sales_price }}</del>
+                      </h6>
+                      {% else %}
+                      <h4 class="card-text">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                          <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                          </svg>
+                          {{ bst.product.sales_price }}
+                      </h4>
+                      {% endif %}
+                      <small class="text-muted">{{ bst.product.duration }}</small>
+                      <a href="{% url 'addtocart' bst.product.id user.id 1 'home' %}" class="btn btn-outline-danger mr-2">Add</a>
+                  </div>
+              </div>
           </div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-5">
-          <div class="card c-card">
-            <img src="static/images/chickenbreast&drumstick combo-img10.jpeg" class="card-img-top" alt="image">
-            <div class="card-body">
-              <h5 class="card-title">Chicken Breast - Boneless</h5>
-              <p class="card-text">Enjoy tender pieces of juicy chicken breast</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <h4 class="card-text">$ 160.0</h4>
-              <small class="text-muted">90 mins</small>
-              <a href="#" class="btn btn-primary mr-2">Add</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-5">
-          <div class="card c-card">
-            <img src="static/images/chickenthigh-img7.jpg" class="card-img-top" alt="image">
-            <div class="card-body">
-              <h5 class="card-title">Chicken Mince/Keema - 250 gms (Mini Pack)</h5>
-              <p class="card-text">Tender, Perfectly ground meat</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <h4 class="card-text">$ 210.0</h4>
-              <small class="text-muted">90 mins</small>
-              <a href="#" class="btn btn-primary mr-2">Add</a>
-            </div>
-          </div>
-        </div>
+          {% endfor %}
+      </div>
       </div>
       <div class="col text-center">
         <a href="{% url 'user-d-product' 'CHICKEN' user.id %}"><button type="button" class="btn btn-outline-light">View All</button></a>
@@ -102,48 +103,49 @@
       <br>
       <h2 class="pt-2 pl-5 pb-4 ml-4 text-white">BEEF</h2>
       <div class="row d-flex justify-content-start ml-5 mr-5">
-        <div class="col-md-4 col-sm-6 mb-5">
-          <div class="card b-card">
-            <img src="static/images/beef-img19.webp" class="card-img-top" alt="image">
-            <div class="card-body">
-              <h5 class="card-title">SIERRA STEAK-300 gms</h5>
-              <p class="card-text">Dry aged steak from the beef’s chuck section</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <h4 class="card-text">$ 310.0</h4>
-              <small class="text-muted">90 mins</small>
-              <a href="#" class="btn btn-primary mr-2">Add</a>
-            </div>
+        <div class="row bg-black p-5 d-flex justify-content-right">
+          {% for bst in top_beef_products %}
+          <div class="card-group col-md-3 col-sm-6 mb-5">
+              <div class="card c-card rounded-2">
+                  <div class="image-container">
+                      <a href="{% url 'userdisplayproductdetails' bst.product.id user.id %}"><img src="/media/{{ bst.product.product_image_id.image1 }}" class="cardimages card-img-top rounded-2 p-1" alt="image"></a>
+                  </div>
+                
+                  <div class="card-body row">
+                      <div class="col-9">
+                          <h5 class="card-title">{{ bst.product.product_name }}</h5>
+                      </div>
+                      <p class="card-text">{{ bst.product.product_label }}</p>
+                  </div>
+                  <div class="card-footer d-flex justify-content-between align-items-center">
+                      {% if bst.product.offer_price %}
+                      <h4 class="card-text">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                          <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                          </svg>
+                          {{ bst.product.offer_price }}
+                      </h4>
+                      <h6 class="card-text">
+                          <del><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                          <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                          </svg>
+                          {{ bst.product.sales_price }}</del>
+                      </h6>
+                      {% else %}
+                      <h4 class="card-text">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                          <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z"/>
+                          </svg>
+                          {{ bst.product.sales_price }}
+                      </h4>
+                      {% endif %}
+                      <small class="text-muted">{{ bst.product.duration }}</small>
+                      <a href="{% url 'addtocart' bst.product.id user.id 1 'home' %}" class="btn btn-outline-danger mr-2">Add</a>
+                  </div>
+              </div>
           </div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-5">
-          <div class="card b-card">
-            <img src="static/images/flatIron-img20.webp" class="card-img-top" alt="image">
-            <div class="card-body">
-              <h5 class="card-title">LEAN GROUND BEEF-450 gms</h5>
-              <p class="card-text">Our Lean Ground Beef is a delicious blend of 90% dry-aged beef and 10% fat.</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <h4 class="card-text">$ 360.0</h4>
-              <small class="text-muted">90 mins</small>
-              <a href="#" class="btn btn-primary mr-2">Add</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-5">
-          <div class="card b-card">
-            <img src="static/images/beefbone-inribeye-img15.webp" class="card-img-top" alt="image">
-            <div class="card-body">
-              <h5 class="card-title">Chicken Drumstick - Pack Of 6</h5>
-              <p class="card-text">Juicy bone from chicken drumstick,cut from the leg</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <h4 class="card-text">$ 210.0</h4>
-              <small class="text-muted">90 mins</small>
-              <a href="#" class="btn btn-primary mr-2">Add</a>
-            </div>
-          </div>
-        </div>
+          {% endfor %}
+      </div>
       </div>
       <div class="col text-center pb-5">
         <a href="{% url 'user-d-product' 'BEEF' user.id %}"><button type="button" class="btn btn-outline-light">View All</button></a>

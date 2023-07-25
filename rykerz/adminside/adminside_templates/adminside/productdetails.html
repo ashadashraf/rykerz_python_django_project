@@ -79,6 +79,28 @@
             </table>
         </div>
     </div>
+    <div class="container-fluid px-4 pb-5">
+        <h1>More Details</h1>
+        <div class="card" style="width: 18rem;">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Category : {{ product.product_category.category_name }}</li>
+                <li class="list-group-item">SubCategory : {{ product.product_sub_category.sub_category_name }}</li>
+                <li class="list-group-item">Status : {{ product.product_status }}</li>
+                <li class="list-group-item">Product Price : {{ product.product_price }}</li>
+                <li class="list-group-item">Sales Price : {{ product.sales_price }}</li>
+                <li class="list-group-item">Offer Price : {{ product.offer_price }}</li>
+                <li class="list-group-item">Expiry Date : {{ product.expiry_date }}</li>
+                <li class="list-group-item">Product Tax : {{ product.product_tax }}</li>
+                <li class="list-group-item">Profit Margin : {{ product.profit_margin }}</li>
+                <li class="list-group-item">Stock : {{ product.stock }}</li>
+                {% if product.unit == False %}
+                <li class="list-group-item">Weight : {{ product.weight }}</li>
+                {% else %}
+                <li class="list-group-item">Pieces : {{ product.piece }}</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
 </main>
 
 {% endblock %}

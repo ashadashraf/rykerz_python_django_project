@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from adminside.models import Product, Category, SubCategory, ProductImage
 from authentication.models import CustomUser
-from userside.models import Cart, Address, Order, Transaction, Coupon, BulkOrder, InstantBuy, Favourites, Wallet
+from userside.models import Cart, Address, Order, Transaction, Coupon, BulkOrder, InstantBuy, Favourites, Wallet, BestSellers
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from authentication.decorators import verification_required
 from django.views.decorators.cache import never_cache
-from django.db.models import Sum, Avg, Q
+from django.db.models import Sum, Avg, Q, Count
 from django.http import HttpResponse
 from django.contrib import messages
 from django.http import JsonResponse
@@ -34,7 +34,9 @@ def user_home(request,id):
             address = Address.objects.get(customer=user, active_address=True)
         except:
             pass
-        return render(request, 'userside/home.html', {'user':user, 'address':address})
+        chicken_products = BestSellers.objects.filter(category='CHICKEN')
+        beef_products = BestSellers.objects.filter(category='BEEF')
+        return render(request, 'userside/home.html', {'user':user, 'address':address, 'top_chicken_products':chicken_products, 'top_beef_products':beef_products})
     else:
         return redirect('userlogin')
 
@@ -94,6 +96,8 @@ def display_cart(request, id):
     if not request.user.is_authenticated:
         return redirect('userlogin')
     total_price_sum = Cart.objects.filter(customer=id).aggregate(total=Sum('total_price')).get('total', 0)
+    if total_price_sum:
+        total_price_sum = round(total_price_sum, 2)
     Cart.objects.filter(customer_id=id).update(selected=True)
     cart_items = Cart.objects.filter(customer_id=id).order_by('id')
     return render(request, 'userside/cart.html',{'cart_items':cart_items,'total':total_price_sum})
@@ -117,6 +121,8 @@ def add_to_cart(request, product_id, customer_id, quantity, range):
         print(range)
         if range == 'favourites':
             return redirect('userdisplaycart', customer_id)
+        if range == 'home':
+            return redirect('home', customer_id)
         if range == 'all':
             return redirect('user-d-product', category, customer_id)
         if range == 'sc':
@@ -137,6 +143,14 @@ def add_to_cart(request, product_id, customer_id, quantity, range):
     print(range)
     if range == 'favourites':
         return redirect('userdisplaycart', customer_id)
+    if range == 'home':
+        return redirect('home', customer_id)
+    if range == 'all':
+        return redirect('user-d-product', category, customer_id)
+    if range == 'sc':
+        return redirect('userdisplayscproducts', category, product.product_sub_category)
+    if range == 'productdetails':
+        return redirect('userdisplayproductdetails', product_id, customer_id)
     return redirect('user-d-product', category, customer_id)
 
 def update_cart_quantity(request, product_id, user_id, method):
@@ -199,11 +213,13 @@ def checkout(request, id, discount):
             if item.quantity <= item.product.stock:
                 pass
             else:
-                messages.success(request, '{{product.product_name}} is out of stock')
+                messages.success(request, item.product.product_name + " is out of stock")
                 return redirect('userdisplaycart', id)
         total_price_sum = cart_items.aggregate(total=Sum('total_price')).get('total', 0) or 0
         count = Cart.objects.filter(customer=user_details).count()
         total_payable = total_price_sum + 20 - round(float(discount))
+        total_price_sum = round(total_price_sum, 2)
+        total_payable = round(total_payable, 2)
         return render(request, 'userside/checkout.html',{'user':user_details,'address':address,'totalprice':total_price_sum,'totalcount':count,'discount':float(discount),'totalpayable':total_payable,'cart_items':cart_items,'range':range})
     
     cart_items = Cart.objects.filter(customer_id=id, selected=True)
@@ -212,11 +228,13 @@ def checkout(request, id, discount):
         if item.quantity <= item.product.stock:
             pass
         else:
-            messages.success(request, '{{product.product_name}} is out of stock')
+            messages.success(request, item.product.product_name + ' is out of stock')
             return redirect('userdisplaycart', id)
     total_price_sum = cart_items.aggregate(total=Sum('total_price')).get('total', 0) or 0
     count = Cart.objects.filter(customer=user_details).count()
     total_payable = total_price_sum + 20 - round(float(discount))
+    total_price_sum = round(total_price_sum, 2)
+    total_payable = round(total_payable, 2)
     return render(request, 'userside/checkout.html',{'user':user_details,'address':address,'totalprice':total_price_sum,'totalcount':count,'discount':float(discount),'totalpayable':total_payable,'cart_items':cart_items,'range':range})
 
 
@@ -236,6 +254,8 @@ def direct_checkout(request, product_id, range, user_id):
             total_payable = total_price_sum + 20 - round(float(0.0))
             range = 'directcheckout'
             instantbuy = InstantBuy.objects.filter(customer=user_id, selected=True)
+            total_price_sum = round(total_price_sum, 2)
+            total_payable = round(total_payable, 2)
             return render(request, 'userside/checkout.html',{'user':customer,'address':address,'totalprice':total_price_sum,'totalcount':1,'discount':float(0.0),'totalpayable':total_payable,'cart_items':instantbuy,'range':range})
         product_id = int(product_id)
         InstantBuy.objects.all().delete()
@@ -264,6 +284,8 @@ def direct_checkout(request, product_id, range, user_id):
         total_price_sum = product.sales_price
         total_payable = total_price_sum + 20 - round(float(0.0))
         range = 'directcheckout'
+        total_price_sum = round(total_price_sum, 2)
+        total_payable = round(total_payable, 2)
         return render(request, 'userside/checkout.html',{'user':customer,'address':address,'totalprice':total_price_sum,'totalcount':1,'discount':float(0.0),'totalpayable':total_payable,'cart_items':instantbuy,'range':range})
 
 
@@ -279,6 +301,8 @@ def apply_coupon(request, id, amount, payableamount):
             cart_items = Cart.objects.filter(customer_id=id, selected=True)
             total_price_sum = cart_items.aggregate(total=Sum('total_price')).get('total', 0) or 0
             total_payable = total_price_sum + 20
+            payableamount = round(payableamount, 2)
+            allowance_discount = round(allowance_discount, 2)
             response_data = {
             'message': 'Success',
             'code': code,
@@ -294,6 +318,8 @@ def apply_coupon(request, id, amount, payableamount):
             cart_items = Cart.objects.filter(customer_id=id, selected=True)
             total_price_sum = cart_items.aggregate(total=Sum('total_price')).get('total', 0) or 0
             total_payable = total_price_sum + 20
+            payableamount = round(payableamount, 2)
+            allowance_discount = round(allowance_discount, 2)
             response_data = {
             'message': 'Success',
             'code': code,
@@ -312,6 +338,7 @@ def apply_coupon(request, id, amount, payableamount):
 
         payableamount = float(payableamount)-allowance_discount
         payableamount = round(payableamount, 2)
+        allowance_discount = round(allowance_discount, 2)
         # payableamount -= allowance_discount
 
         response_data = {
@@ -474,7 +501,8 @@ def delete_address(request, id, address_id):
     return redirect('displayaddress', id)
 
 def place_order(request, id, final_amount, coupon_code, payment_mode):
-    print(final_amount)
+    print(final_amount, 'yes')
+    final_amount = round(float(final_amount), 2)
     cart_items = Cart.objects.filter(customer=id, selected=True)
     customer = CustomUser.objects.get(id=id)
     if coupon_code is not None:
@@ -541,10 +569,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                         product.stock -= item.quantity
                         if product.offer_price:
                             total_amount = product.offer_price*item.quantity
-                            unit_price = product.offer_price
+                            profit_margin = ((product.offer_price - product.product_price - (product.product_tax/100) * product.product_price) / (product.product_price + (product.product_tax/100) * product.product_price)) * 100
+                            unit_price = ((profit_margin/100)*product.product_price)+product.product_price
                         else:
                             total_amount = product.sales_price*item.quantity
-                            unit_price = product.sales_price
+                            unit_price = ((product.profit_margin/100)*product.product_price)+product.product_price
+                        unit_price = round(unit_price, 2)
+                        total_amount = round(total_amount, 2)
                         order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         wallet.amount -= round(float(final_amount), 2)
@@ -563,10 +594,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                         print(item.quantity)
                         if product.offer_price:
                             total_amount = product.offer_price*item.quantity
-                            unit_price = product.offer_price
+                            profit_margin = ((product.offer_price - product.product_price - (product.product_tax/100) * product.product_price) / (product.product_price + (product.product_tax/100) * product.product_price)) * 100
+                            unit_price = ((profit_margin/100)*product.product_price)+product.product_price
                         else:
                             total_amount = product.sales_price*item.quantity
-                            unit_price = product.sales_price
+                            unit_price = ((product.profit_margin/100)*product.product_price)+product.product_price
+                        unit_price = round(unit_price, 2)
+                        total_amount = round(total_amount, 2)
                         order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         wallet.amount -= round(float(final_amount), 2)
@@ -597,10 +631,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                     product.stock -= item.quantity
                     if product.offer_price:
                         total_amount = product.offer_price*item.quantity
-                        unit_price = product.offer_price
+                        profit_margin = ((product.offer_price - product.product_price - (product.product_tax/100) * product.product_price) / (product.product_price + (product.product_tax/100) * product.product_price)) * 100
+                        unit_price = ((profit_margin/100)*product.product_price)+product.product_price
                     else:
                         total_amount = product.sales_price*item.quantity
-                        unit_price = product.sales_price
+                        unit_price = ((product.profit_margin/100)*product.product_price)+product.product_price
+                    unit_price = round(unit_price, 2)
+                    total_amount = round(total_amount, 2)
                     order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=False, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                     order.save()
                     product.save()
@@ -617,10 +654,13 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
                     print(item.quantity)
                     if product.offer_price:
                         total_amount = product.offer_price*item.quantity
-                        unit_price = product.offer_price
+                        profit_margin = ((product.offer_price - product.product_price - (product.product_tax/100) * product.product_price) / (product.product_price + (product.product_tax/100) * product.product_price)) * 100
+                        unit_price = ((profit_margin/100)*product.product_price)+product.product_price
                     else:
                         total_amount = product.sales_price*item.quantity
-                        unit_price = product.sales_price
+                        unit_price = ((product.profit_margin/100)*product.product_price)+product.product_price
+                    unit_price = round(unit_price, 2)
+                    total_amount = round(total_amount, 2)
                     order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=False, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                     order.save()
                     product.save()
@@ -647,6 +687,7 @@ def place_order(request, id, final_amount, coupon_code, payment_mode):
         print('online')
         final_amount = str(final_amount)
         return order_payment(request, customer.id, final_amount, bulk_order)
+    print(bulk_order.final_amount, 'normal')
     return render(request, "razorpay_integration/callback.html", context={"customer":customer, "status": order_status, "bulk_order": bulk_order})
     
 
@@ -664,6 +705,10 @@ def display_orders(request, id):
             status = 'completed'
         else:
             status = 'in progress'
+        if Order.objects.filter(bulk_order=bulk).exclude(Q(order_status='cancelled')| Q(order_status='returned')).exists():
+            pass
+        else:
+            status = 'cancelled'
         first_orders.append((first_order, status))
     return render(request, 'userside/userorders.html',{'first_orders':first_orders})
 
@@ -671,84 +716,116 @@ def display_orders(request, id):
 def order_details(request, order_id):
     order = Order.objects.get(id=order_id)
     orders = Order.objects.filter(bulk_order=order.bulk_order)
-    valid_orders = Order.objects.filter(bulk_order=order.bulk_order).exclude(order_status__in=['cancelled','returned'])
-    product_total = 0
-    for ord in valid_orders:
-        if ord.product.offer_price:
-            product_total += (ord.quantity * ord.product.offer_price)
-        else:
-            product_total += (ord.quantity * ord.product.sales_price)
     bulk_order = BulkOrder.objects.get(bulk_order=order.bulk_order.bulk_order)
-    if bulk_order.delivery_charge:
-        delivery_charge = bulk_order.delivery_charge
-        order_total = product_total + delivery_charge
-    else:
-        delivery_charge = 0
-        order_total = product_total + delivery_charge
-    if bulk_order.coupon:
-        if bulk_order.coupon.is_price_based:
-            coupon_amount = bulk_order.coupon.discount_price
+
+    # existing_orders = Order.objects.filter(bulk_order=bulk_order.bulk_order)
+    existing_order_total = 0
+    existing_order_tax_amount_total = 0
+    for order in orders:
+        print(order.order_status)
+        if order.order_status == 'cancelled' or order.order_status == 'returned':
+            pass
         else:
-            total = Order.objects.filter(bulk_order=bulk_order).exclude(order_status__in=['cancelled','returned']).aggregate(total=Sum('total_amount')).get('total', 0) or 0
-            total += delivery_charge
-            coupon_amount = round(total * (bulk_order.coupon.discount_percentage/100), 2)
+            existing_order_total += order.total_amount
+            existing_order_tax_amount_total += order.tax_amount
+    existing_order_total = round(existing_order_total, 2)
+    existing_order_tax_amount_total = round(existing_order_tax_amount_total, 2)
+    print(existing_order_total)
+    if bulk_order.coupon:
+        if bulk_order.coupon.min_purchase <= existing_order_total:
+            if bulk_order.coupon.is_price_based:
+                coupon_amount = bulk_order.coupon.discount_price
+            else:
+                coupon_amount = round(existing_order_total * (bulk_order.coupon.discount_percentage/100), 2)
+        else:
+            coupon_amount = 0.0
     else:
         coupon_amount = 0.0
-    return render(request, 'userside/userorderdetails.html',{'order':order ,'orders':orders,'bulk_order':bulk_order,'product_total':product_total, 'order_total': order_total, 'coupon_amount':coupon_amount})
+    bulk_order.final_amount = (existing_order_total - coupon_amount)+bulk_order.delivery_charge
+    bulk_order.tax_amount = existing_order_tax_amount_total
+    bulk_order.save()
+    if existing_order_total == 0:
+        print('enters')
+        bulk_order.delivery_charge = 0
+        bulk_order.final_amount = 0
+        bulk_order.tax_rate = 0
+        bulk_order.tax_amount = 0
+        bulk_order.save()
+    print(existing_order_total, existing_order_total+bulk_order.delivery_charge, coupon_amount, bulk_order.final_amount)
+    return render(request, 'userside/userorderdetails.html',{'order':order ,'orders':orders,'bulk_order':bulk_order,'product_total':existing_order_total, 'order_total': existing_order_total+bulk_order.delivery_charge, 'coupon_amount':coupon_amount})
 
 
 def user_order_status(request, order_id, status):
-    print(status)
     order = Order.objects.get(id=order_id)
+    orders = Order.objects.filter(bulk_order=order.bulk_order.bulk_order)
     wallet = Wallet.objects.get(customer=request.user.id)
     order_count = Order.objects.filter(bulk_order=order.bulk_order).count()
     bulk_order = BulkOrder.objects.get(bulk_order=order.bulk_order.bulk_order)
     delivery_charge = bulk_order.delivery_charge
     if status == 'cancel':
-        print('c')
         order.order_status = 'cancelled'
         order.save()
-        
     if status == 'return':
-        print('r')
         order.order_status = 'returned'
         order.save()
-    
-    total_amount =  Order.objects.filter(bulk_order=bulk_order).exclude(Q(order_status='cancelled') | Q(order_status='returned')).aggregate(total_amount=Sum('total_amount'))['total_amount']
-    print(total_amount)
-    if total_amount:
-        print(total_amount)
-        bulk_order.final_amount = round(total_amount, 2) + bulk_order.delivery_charge
-    bulk_order.tax_amount = bulk_order.final_amount / (1 + (bulk_order.tax_rate / 100))
-    order_exist_check = Order.objects.filter(bulk_order=bulk_order).exclude(Q(order_status='cancelled') | Q(order_status='returned'))
-    if order_exist_check:
-        pass
+    existing_orders = Order.objects.filter(bulk_order=bulk_order.bulk_order)
+    existing_order_total = 0
+    existing_order_tax_amount_total = 0 
+    for order in existing_orders:
+        if order.order_status is not 'cancelled' or order.order_status is not 'returned':
+            existing_order_total += order.total_amount
+            existing_order_tax_amount_total += order.tax_amount
+    existing_order_total = round(existing_order_total, 2)
+    existing_order_tax_amount_total = round(existing_order_tax_amount_total, 2)
+    print(existing_order_total, existing_order_tax_amount_total)
+    bulk_order.final_amount = existing_order_total + bulk_order.delivery_charge
+    avg_tax =  Order.objects.filter(bulk_order=bulk_order.bulk_order).exclude(Q(order_status='cancelled') | Q(order_status='returned')).aggregate(avg_tax=Avg('tax_rate'))['avg_tax']
+    print(avg_tax)
+    if avg_tax:
+        bulk_order.tax_rate = avg_tax
     else:
-        bulk_order.delivery_charge = None
-        bulk_order.final_amount = None
+        bulk_order.tax_rate = 0
+    bulk_order.tax_amount = existing_order_tax_amount_total
     try:
-        if bulk_order.final_amount >= bulk_order.coupon.min_purchase:
-            pass
+        if bulk_order.coupon:
+            if (bulk_order.final_amount - bulk_order.delivery_charge) >= bulk_order.coupon.min_purchase:
+                if bulk_order.coupon.is_price_based:
+                    coupon_amount = bulk_order.final_amount - bulk_order.coupon.discount_price
+                else:
+                    coupon_amount = bulk_order.final_amount - (bulk_order.final_amount * (bulk_order.coupon.discount_percentage/100))
+                bulk_order.final_amount = coupon_amount
+                if bulk_order.coupon.is_price_based:
+                    coupon_amount = bulk_order.coupon.discount_price
+                else:
+                    coupon_amount = round(bulk_order.final_amount * (bulk_order.coupon.discount_percentage/100), 2)
+            else:
+                bulk_order.coupon = False
         else:
-            bulk_order.coupon = None
+            bulk_order.coupon = False
     except:
         pass
-        
+    valid_orders = Order.objects.filter(bulk_order=order.bulk_order).exclude(order_status__in=['cancelled','returned'])
+    if valid_orders:
+        pass
+    else:
+        bulk_order.delivery_charge = 0
+        bulk_order.final_amount = 0
+        bulk_order.tax_rate = 0
+        bulk_order.tax_amount = 0
+        bulk_order.save()
     if order.payment_status is True:
-        wallet.amount += order.total_amount - delivery_charge
-        transaction = Transaction.objects.get(bulk_order=order.bulk_order)
+        wallet.amount += (order.total_amount - delivery_charge)
+        transaction = Transaction.objects.get(bulk_order=order.bulk_order.bulk_order)
         transaction.transaction_amount -= (order.total_amount - delivery_charge)
         transaction.save()
-        
     product = Product.objects.get(id=order.product.id)
     product.stock += 1
-
     bulk_order.save()
     product.save()
     order.save()
     wallet.save()
-    return redirect('userorderdetails', order_id)
-
+    print(bulk_order.final_amount, bulk_order.tax_amount, bulk_order.tax_rate, bulk_order.delivery_charge)
+    return render(request, 'userside/userorderdetails.html',{'order':order ,'orders':orders,'bulk_order':bulk_order,'product_total':existing_order_total, 'order_total': existing_order_total+bulk_order.delivery_charge, 'coupon_amount':coupon_amount})
 
 def search_product(request):
     if request.method == 'POST':

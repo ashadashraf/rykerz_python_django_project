@@ -66,7 +66,25 @@ class Product(models.Model):
             self.product_price = float(self.product_price)
         if isinstance(self.profit_margin, str):
             self.profit_margin = float(self.profit_margin)
+        if isinstance(self.total_energy, str):
+            self.total_energy = float(self.total_energy)
+        if isinstance(self.carbohydrate, str):
+            self.carbohydrate = float(self.carbohydrate)
+        if isinstance(self.fat, str):
+            self.fat = float(self.fat)
+        if isinstance(self.protein, str):
+            self.protein = float(self.protein)
         if isinstance(self.product_tax, str):
             self.product_tax = float(self.product_tax)
+        
         self.sales_price = (self.product_price + (self.product_price * self.profit_margin/100)) + ((self.product_price + (self.product_price * self.profit_margin/100)) * (self.product_tax/100))
+        if self.product_price: self.product_price = round(self.product_price, 2)
+        if self.sales_price: self.sales_price = round(self.sales_price, 2)
+        if self.product_tax: self.product_tax = round(self.product_tax, 2)
+        if self.profit_margin: self.profit_margin = round(self.profit_margin, 2)
+        if self.offer_price: self.offer_price = round(self.offer_price, 2)
+        if self.total_energy: self.total_energy = round(self.total_energy, 2)
+        if self.carbohydrate: self.carbohydrate = round(self.carbohydrate, 2)
+        if self.fat: self.fat = round(self.fat, 2)
+        if self.protein: self.protein = round(self.protein, 2)
         super(Product, self).save(*args, **kwargs)

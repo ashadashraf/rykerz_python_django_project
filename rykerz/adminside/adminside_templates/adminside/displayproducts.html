@@ -138,7 +138,7 @@
         
         
         <div class="d-flex justify-content-between">
-            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0" method="post" action="{% url 'adminsidesearch' 'products' %}">
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0" method="post" action="{% url 'adminsidesearch' 'products' 'None' %}">
               {% csrf_token %}
                 <div class="input-group">
                     <input class="form-control" name="search" type="text" placeholder="Search by product name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
@@ -164,7 +164,11 @@
           <tbody>
             {% for product in products %}
             <tr>
+              {% if product.stock == 0 %}
+              <td class="text-danger">{{product.product_name}}</td>
+              {% else %}
               <td>{{product.product_name}}</td>
+              {% endif %}
               <td>{{product.product_category}}</td>
               <td>{{product.profit_margin}}</td>
               <td>{{product.sales_price}}</td>

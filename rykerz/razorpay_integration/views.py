@@ -83,10 +83,13 @@ def callback(request, customer, amount, bulkorder):
                         product.stock -= item.quantity
                         if product.offer_price:
                             total_amount = product.offer_price*item.quantity
-                            unit_price = product.offer_price
+                            profit_margin = ((product.offer_price - product.product_price - (product.product_tax/100) * product.product_price) / (product.product_price + (product.product_tax/100) * product.product_price)) * 100
+                            unit_price = ((profit_margin/100)*product.product_price)+product.product_price
                         else:
                             total_amount = product.sales_price*item.quantity
-                            unit_price = product.sales_price
+                            unit_price = ((product.profit_margin/100)*product.product_price)+product.product_price
+                        unit_price = round(unit_price, 2)
+                        total_amount = round(total_amount, 2)
                         order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         product.save()
@@ -102,10 +105,13 @@ def callback(request, customer, amount, bulkorder):
                         product.stock -= item.quantity
                         if product.offer_price:
                             total_amount = product.offer_price*item.quantity
-                            unit_price = product.offer_price
+                            profit_margin = ((product.offer_price - product.product_price - (product.product_tax/100) * product.product_price) / (product.product_price + (product.product_tax/100) * product.product_price)) * 100
+                            unit_price = ((profit_margin/100)*product.product_price)+product.product_price
                         else:
                             total_amount = product.sales_price*item.quantity
-                            unit_price = product.sales_price
+                            unit_price = ((product.profit_margin/100)*product.product_price)+product.product_price
+                        unit_price = round(unit_price, 2)
+                        total_amount = round(total_amount, 2)
                         order = Order(customer=customer, product=product, quantity=item.quantity, order_status='requesting', payment_status=True, amount=unit_price, total_amount=total_amount, bulk_order=bulk_order)
                         order.save()
                         product.save()
@@ -116,6 +122,7 @@ def callback(request, customer, amount, bulkorder):
             bulk_order.payment_status = True
             bulk_order.tax_amount = average_tax_amount
             bulk_order.save()
+            print(bulk_order.final_amount, 'razor')
             transaction = Transaction(bulk_order=bulk_order, transaction_mode='razorpay', payment_gateway_id=rp_order.payment_id, transaction_amount=bulk_order.final_amount, transaction_date=datetime.now(), transaction_status=PaymentStatus.SUCCESS)
             transaction.save()
             # try:

@@ -1,4 +1,5 @@
 {% extends 'userside/base.html' %}
+{% load static %}
 {% block content %}
 <div class="main">
     <div class="category-box bg-white">
@@ -6,10 +7,18 @@
         {% if category|length == 0 %}
         <div class="row">
             <div class="col md-3 d-flex justify-content-start pb-3">
+                {% if category.category_name == 'CHICKEN' %}
                 <div class="pl-5 pr-4">
-                    <a href="{% url 'user-d-product' category user.id %}"><img src="/media/product/images/chickenbiryani-img8_7dkl0qt.jpg" alt="" class="category_image" id="category_image"></a>
+                    <a href="{% url 'user-d-product' category user.id %}"><img src="{% static 'images/img2.svg' %}" alt="" class="category_image" id="category_image"></a>
                     <h5 class="d-flex justify-content-center pt-2">All</h5>
                 </div>
+                {% endif %}
+                {% if category.category_name == 'BEEF' %}
+                <div class="pl-5 pr-4">
+                    <a href="{% url 'user-d-product' category user.id %}"><img src="{% static 'images/img3.svg' %}" alt="" class="category_image" id="category_image"></a>
+                    <h5 class="d-flex justify-content-center pt-2">All</h5>
+                </div>
+                {% endif %}
                 {% for sub in subcategory %}
                 <div class="pl-4">
                     <div class="d-flex justify-content-center"><a href="{% url 'userdisplayscproducts' sub.category sub.sub_category_name %}"><img src="/media/{{ sub.sub_category_image }}" alt="" class="category_image" id="category_image"></a></div>

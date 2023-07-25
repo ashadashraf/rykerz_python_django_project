@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from userside.models import BulkOrder, Order
 from django.db.models import Sum
+from django.db.models import Q
 
 from django.http import HttpResponse
 # from django.template.loader import get_template
@@ -10,25 +11,32 @@ from django.http import HttpResponse
 # Create your views here.
 
 def order_invoice(request, order_id):
+    print(order_id)
     try:
         if BulkOrder.objects.get(bulk_order=order_id):
             bulk_order = BulkOrder.objects.get(bulk_order=order_id)
-            order = Order.objects.filter(bulk_order=order_id).exclude(order_status='cancelled')
+            orders = Order.objects.filter(bulk_order=order_id).exclude(Q(order_status='cancelled') | Q(order_status='returned'))
+            total_sum = orders.aggregate(total_amount_sum=Sum('total_amount'))['total_amount_sum']
     except:
         order = Order.objects.get(id=order_id)
         bulk_order = order.bulk_order
     if bulk_order.coupon:
-        if bulk_order.coupon.is_price_based:
-            coupon_amount = bulk_order.coupon.discount_price
+        if bulk_order.coupon.min_purchase <= total_sum:
+            if bulk_order.coupon.is_price_based:
+                coupon_amount = bulk_order.coupon.discount_price
+            else:
+                order_total = Order.objects.filter(bulk_order=order_id).exclude(Q(order_status='cancelled') | Q(order_status='returned')).aggregate(Sum('total_amount'))['total_amount__sum']
+                print(order_total)
+                coupon_amount = round(order_total * (bulk_order.coupon.discount_percentage / 100), 2)
+            total = bulk_order.final_amount + coupon_amount
         else:
-            order_total = Order.objects.filter(bulk_order=bulk_order).aggregate(Sum('total_amount'))['total_amount__sum']
-            print(order_total)
-            coupon_amount = round(order_total * (bulk_order.coupon.discount_percentage / 100), 2)
-        total = bulk_order.final_amount + coupon_amount
+            coupon_amount = 0.0
+            total = bulk_order.final_amount
     else:
-        coupon_amount = None
+        coupon_amount = 0.0
         total = bulk_order.final_amount
-    return render(request, 'pdf_convert/show_info.html',{'orders':order, 'bulk_order':bulk_order, 'total':total, 'coupon_amount':coupon_amount})
+    
+    return render(request, 'pdf_convert/show_info.html',{'orders':orders, 'bulk_order':bulk_order, 'total':total, 'coupon_amount':coupon_amount})
 
 
 # def pdf_report_create(request, order_id):

@@ -401,7 +401,7 @@
                                 var paymentValue = paymentInput ? paymentInput.value : '';
 
                                 var userId = "{{ user.id }}"; // Replace with the actual user ID value
-                                var totalPayable ="{{ totalpayable }}"; // Replace with the actual total payable amount value
+                                totalPayable ="{{ totalpayable }}"; // Replace with the actual total payable amount value
                                 var coupon = couponCode
                     
                                 var url = '/placeorder/' + userId + '/' + totalPayable + '/' + coupon + '/' + paymentValue;

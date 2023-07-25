@@ -1,66 +1,198 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="static/css/userlogin.css">
-
-
-
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <li class="nav-item active ms-3 me-3 mt-1">
-          <h2><b><a class="ms-5 me-5 text-decoration-none" href="{% url 'home' user.id %}" style="font-family: Georgia, 'Times New Roman', Times, serif; color: black;">RYKERZ</a></b></h2>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </li>
-        {% if user.is_authenticated %}
-        {% if address %}
-        <li class="nav-item active ms-3 me-3 mt-2">
-          <a class="nav-link navbar-brand" href="#">{{ address.city }} <span class="sr-only">(current)</span></a>
-        </li>
-        {% endif %}
-        {% else %}
-        <li class="nav-item active ms-3 me-3 mt-2">
-          <a class="nav-link navbar-brand" href="#">Location <span class="sr-only">(current)</span></a>
-        </li>
-        {% endif %}
-        {% if user.is_authenticated %}
-        <li class="nav-item dropdown ms-3 me-3 mt-2">
-          <a class="nav-link navbar-brand dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Hai {{ user.name }}
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="navbar-brand dropdown-item" href="{% url 'userlogout' %}">Logout</a>
-          </div>
-        </li>
-        {% else %}
-        <li class="nav-item ms-5 me-5 mt-2">
-            <a class="nav-link navbar-brand" href="{% url 'userlogin' %}">Login <span class="sr-only">(current)</span></a>
-        </li>
-        {% endif %}
-        <form class="nav-item form-inline my-2 my-lg-0 ms-5 me-5 mt-2 pr-4" action="{% url 'searchproduct' %}" method="post">
-          {% csrf_token %}
-          <input class="form-control mr-sm-2" name="search" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-        <li class="nav-item navbar-brand ms-5 me-5 pr-4">
-            <a class="nav-link text-dark" href="{% url 'home' user.id %}">Contact</a>
-        </li>
-        <li class="nav-item navbar-brand ms-5 me-5 mt-2 pr-4" style="height: 5px;">
-            <a href="{% url 'displayfavouriteproduct' user.id %}"><i class="fa fa-heart icon-lg text-danger" style="height: 5px;"></i></a>
-        </li>
-        <li class="cart nav-item navbar-brand ms-5 me-5 pr-4" style="height: 5px;">
-            <a href="{% url 'userdisplaycart' user.id %}"><span class="bi bi-cart4 display-6 text-warning"></span></a>
-        </li>
-        <li class="cart nav-item navbar-brand ms-5 me-2 pr-4" style="height: 5px;">
-            <a href="{% url 'accountdetails' user.id %}"><span class="bi bi-person-fill display-6" style="color: hwb(212 4% 35%);"></span></a>
-        </li>
-
-      </ul>
-    </div>
-</nav>
-
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/userlogin.css' %}">
+    <style>
+      *{
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: Arial;
+      }
+      body{
+          background: none;
+          background-size: cover;
+          height: 100vh;
+          background-position: center;
+      }
+      header{
+          width:100%;
+          height: 70px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: fixed;
+          z-index: 100;
+          box-shadow: 0 0 10px #000;
+          background: rgba(0, 0, 0, 0.329);
+      }
+      #chk1{
+          display: none;
+          
+          
+      }
+      i{
+          color: #fff;
+          cursor: pointer;
+      }
+      header .logo{
+          flex: 1;
+          color:#fff;
+          
+          margin-left: 50px;
+          text-transform: uppercase;
+          font-size: 15px;
+      }
+      header .search-box{
+          flex: 1;
+          position: relative;
+      }
+      .search-box input{
+          width:100%;
+          height: 40px;
+          border: none;
+          outline: none;
+          background:#f2f2f2;
+          border-radius: 30px;
+          color:gray;
+          font-size: 16px;
+          padding-left: 5px;
+          padding-right: 40px;
+          text-align: center;
+          
+      }
+      
+      .search-box button{
+          cursor: pointer;
+          width:40px;
+          height: 40px;
+          border-radius: 30px;
+          border:none;
+          position: absolute;
+          top:0;
+          right: 0;
+          transform: scale(0.9);
+          background: rgb(0, 109, 128);
+          color: #fff;
+      }
+      header ul {
+          flex:2;
+          display: flex;
+          justify-content: space-evenly;
+      }
+      header ul li{
+          list-style: none;
+      }
+      header ul li a{
+          text-decoration: none;
+          color:#fff;
+          font-weight: 600;
+          text-transform: uppercase;
+          padding: 10px 15px;
+      }
+      header ul li a:hover{
+          border-bottom: 2px solid cadetblue;
+      }
+      header .menu{
+          font-size: 2.5em;
+          display: none;
+      }
+      @media(max-width:1000px){
+          .search-box button{
+              position: absolute;
+          }
+          header ul{
+              position: fixed;
+              top:100px;
+              right: -100%;
+              background: rgba(0,0,0,0.5);
+              height: calc(100vh - 100px);
+              width:50%;
+              flex-direction: column;
+              align-items: center;
+              transition: right 0.5s linear;
+          }
+          
+          header .menu{
+              display: block;
+              width:100px;
+              text-align: center;
+          }
+          #chk1:checked ~ ul{
+              right: 0;
+              
+          }
+        
+      }
+      .login{
+          padding-top: 50px;
+      }
+      
+      .icon-lg {
+          font-size: 2.0rem;
+        }  
+    </style>
+</head>
+<body>
+    <header>
+        <input type ="checkbox" name ="navbar-container" id ="chk1">
+        <div class="logo"><h1><a style="text-decoration: none; color: azure; font-weight: 600;" href="{% url 'home' user.id %}">RYKERZ</a></h1></div>
+            <div class="search-box">
+                <form action="{% url 'searchproduct' %}" method="post">
+                  {% csrf_token %}
+                  <input class="form" type ="text" name ="search" id ="srch" placeholder="Search">
+                  <button type ="submit"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+            <ul style="margin-top: 10px;">
+              {% if user.is_authenticated %}
+              {% if address %}
+                <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 3px;" width="20" height="20" fill="currentColor" class="bi bi-geo" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z"/>
+                  </svg>{{ address.city }}</a></li>
+              {% endif %}
+              {% else %}
+                <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 3px;" width="20" height="20" fill="currentColor" class="bi bi-geo" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z"/>
+                </svg>Location</a></li>
+              {% endif %}
+              {% if user.is_authenticated %}
+              
+                <li class="dropdown">
+                  <a class="dropdown-toggle text-white text-decoration-none" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" data-toggle="dropdown" aria-expanded="false">
+                    Hai {{ user.name }}
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'userlogout' %}">Logout</a></li>
+                  </ul>
+                </li>
+              {% else %}
+                <li><a href="{% url 'userlogin' %}">Login</a></li>
+              {% endif %}
+                <li><a href="{% url 'home' user.id %}" style="text-decoration: none;">Contact</a></li>
+                <li><a href="{% url 'displayfavouriteproduct' user.id %}"><svg xmlns="http://www.w3.org/2000/svg" style="color: red;" width="24" height="24" fill="currentColor" class="bi bi-suit-heart-fill" viewBox="0 0 16 16">
+                    <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1z"/>
+                  </svg></a></li>
+                <li><a href="{% url 'userdisplaycart' user.id %}"><svg xmlns="http://www.w3.org/2000/svg" style="color: rgb(231, 231, 34);" width="24" height="24" fill="currentColor" class="bi bi-cart2" viewBox="0 0 16 16">
+                    <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l1.25 5h8.22l1.25-5H3.14zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
+                  </svg></a></li>
+                <li><a href="{% url 'accountdetails' user.id %}"><svg xmlns="http://www.w3.org/2000/svg" style="color: rgb(11, 11, 78); margin-top: 3px;" width="25" height="25" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                  </svg></a></li>                      
+                </li>
+            </ul>
+            <div class="menu">
+                <label for="chk1">
+                    <i class="fa fa-bars"></i>
+                </label>
+            </div>
+    </header>
+</body>
+</html>

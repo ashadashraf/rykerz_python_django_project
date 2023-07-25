@@ -2,8 +2,8 @@
 {% block content %}
 
 <div class="container d-flex justify-content-center m-5">
-    <div class="card mb-3">
-        <img src="/media/{{ order.product.product_image_id.image1 }}" class="card-img-top align-self-start mr-3 h-50 rounded-3" alt="image1">
+    <div class="card mb-3 w-50">
+        <img src="/media/{{ order.product.product_image_id.image1 }}" class="card-img-top align-self-start mr-3 h-50 rounded-3 img-fluid" alt="image1">
         <div class="card-body">
           <h3 class="card-title">PRODUCT : {{ order.product.product_name.upper }}</h3>
           <br>

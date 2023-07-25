@@ -55,11 +55,11 @@
           <th scope="col">Sl.No</th>
           <th scope="col">Description</th>
           <th scope="col">Unit Price</th>
-          <th scope="col">Qty</th>
-          <th scope="col">Net Amount</th>
           <th scope="col">Tax Rate</th>
           <th scope="col">Tax Type</th>
           <th scope="col">Tax Amount</th>
+          <th scope="col">Net Amount</th>
+          <th scope="col">Qty</th>
           <th scope="col">Total Amount</th>
         </tr>
       </thead>
@@ -68,12 +68,16 @@
         <tr>
           <th scope="row">{{ forloop.counter }}</th>
           <td>{{ item.product.product_name }}</td>
-          <td>{{ item.product.product_price }}</td>
-          <td>{{ item.quantity }}</td>
           <td>{{ item.amount }}</td>
-          <td>5%</td>
+          <td>{{ item.tax_rate }}</td>
           <td>IGST</td>
           <td>{{ item.tax_amount }}</td>
+          {% if item.product.offer_price %}
+            <td>{{ item.product.offer_price }}</td>
+          {% else %}
+            <td>{{ item.product.sales_price }}</td>
+          {% endif %}
+          <td>{{ item.quantity }}</td>
           <td>{{ item.total_amount }}</td>
         </tr>
         {% endfor %}

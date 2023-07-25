@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from adminside.models import Product, ProductImage, Category, SubCategory
-from userside.models import Cart, Coupon, BulkOrder, Order, Address, Transaction
+from userside.models import Cart, Coupon, BulkOrder, Order, Address, Transaction, BestSellers
 from authentication.models import CustomUser
 from django.contrib import messages
 from datetime import timedelta, datetime, time
@@ -78,8 +78,14 @@ def base(request):
         total_amount = total_transaction['total_amount']
         total_order_count = Transaction.objects.filter(transaction_status='Success').count()
         print(total_daily_sales, daily_sales_count, orders, weekday_names, weekly_sales, weekly_sales_count, monthly_sale, total_monthly_sales, total_amount)
+        if total_weekly_sales:
+            total_weekly_sales = round(total_weekly_sales, 2)
+        if total_monthly_sales:
+            total_monthly_sales = round(total_monthly_sales, 2)
+        if total_amount:
+            total_amount = round(total_amount, 2)
         context = {
-            'daily_sales': total_daily_sales,
+            'daily_sales': round(total_daily_sales, 2),
             'daily_sales_count': daily_sales_count,
             'orders': orders,
             'categories': categories,
@@ -215,7 +221,11 @@ def update_product(request, id):
         product_description = request.POST['product_description']
         product_status = request.POST['product_status']
         product_price = request.POST['product_price']
-        product_tax = request.POST['product_tax']
+        if 'product_tax' in request.POST:
+            product_tax = request.POST['product_tax']
+            product = Product.objects.get(id=id)
+            product.product_tax = product_tax
+            product.save()
         profit_margin = request.POST['profit_margin']
         stock = request.POST['stock']
         unit = request.POST['lastAction']
@@ -262,7 +272,6 @@ def update_product(request, id):
         product.product_description = product_description
         product.product_status = product_status
         product.product_price = product_price
-        product.product_tax = product_tax
         product.profit_margin = profit_margin
         product.stock = stock
         product.unit = unit
@@ -273,8 +282,7 @@ def update_product(request, id):
         product.carbohydrate = carbohydrate
         product.fat = fat
         product.protein = protein
-
-        product.product_tax = None
+        
         product.expiry_date = None
         product.save()
 
@@ -413,7 +421,7 @@ def category_details(request, name):
 
 def display_sub_category(request, c_name):
     sub_categories = SubCategory.objects.filter(category=c_name)
-    return render(request, 'adminside/displaysubcategory.html',{'sub_categories': sub_categories})
+    return render(request, 'adminside/displaysubcategory.html',{'sub_categories': sub_categories, 'category':c_name})
 
 
 def add_sub_category(request):
@@ -501,7 +509,10 @@ def display_user(request):
 
 
 def user_details(request,name):
-    customer = CustomUser.objects.get(name=name, is_admin=False)
+    try:
+        customer = CustomUser.objects.get(name=name, is_admin=False)
+    except:
+        return redirect('dashboard')
     try:
         address = Address.objects.get(customer=customer, active_address=True)
         return render(request, 'adminside/userdetails.html',{'customer':customer, 'address':address})
@@ -677,7 +688,7 @@ def display_transactions(request):
     return render(request, 'adminside/displaytransactions.html',{'transactions':transactions})
 
 
-def adminside_search(request, range):
+def adminside_search(request, range, subrange):
     if request.method == "POST":
         search = request.POST['search']
         if range == 'products':
@@ -686,4 +697,104 @@ def adminside_search(request, range):
             except:
                 pass
             return render(request, 'adminside/displayproducts.html', {'products':products})
+        if range == 'subcategories':
+            try:
+                subcategories = SubCategory.objects.filter(sub_category_name__istartswith=search, category=subrange)
+            except:
+                pass
+            return render(request, 'adminside/displaysubcategory.html', {'sub_categories':subcategories, 'category':subrange})
+        if range == 'categories':
+            try:
+                categories = Category.objects.filter(category_name__istartswith=search)
+            except:
+                pass
+            return render(request, 'adminside/displaycategory.html', {'categories':categories})
+        if range == 'users':
+            if search.isdigit():
+                if len(search) == 10:
+                    try:
+                        search = '+91' + search
+                        customers = CustomUser.objects.filter(mobile__istartswith=search)
+                    except:
+                        pass
+                else:
+                    try:
+                        customers = CustomUser.objects.filter(id__istartswith=search)
+                    except:
+                        pass
+            else:
+                try:
+                    customers = CustomUser.objects.filter(name__istartswith=search)
+                except:
+                    pass
+            return render(request, 'adminside/displayuser.html', {'customers':customers})
+        if range == 'coupons':
+            try:
+                coupons = Coupon.objects.filter(coupon_code__istartswith=search)
+            except:
+                pass
+            return render(request, 'adminside/displaycoupon.html', {'coupons':coupons})
+        if range == 'transactions':
+            try:
+                transactions = Transaction.objects.filter(id__istartswith=search)
+            except:
+                pass
+            return render(request, 'adminside/displaytransactions.html', {'transactions':transactions})
+        if range == 'orders':
+            try:
+                orders = Order.objects.filter(id__istartswith=search)
+            except:
+                pass
+            return render(request, 'adminside/displayorders.html', {'orders':orders})
+        if range == 'offers':
+            if search.isdigit():
+                try:
+                    offers = Product.objects.filter(id__istartswith=search, product_status=True)
+                    categories = Category.objects.filter(category_status=True)
+                except:
+                    pass
+            else:
+                try:
+                    offers = Product.objects.filter(product_name__istartswith=search, product_status=True)
+                    categories = Category.objects.filter(category_status=True)
+                except:
+                    pass
+            return render(request, 'adminside/displayoffers.html', {'products':offers, 'categories':categories})
     return redirect('dashboard')
+
+
+def display_bestsellers(request):
+    chicken_bestsellers = BestSellers.objects.filter(category='CHICKEN')
+    beef_bestsellers = BestSellers.objects.filter(category='BEEF')
+    beef = Product.objects.filter(product_category='BEEF')
+    chicken = Product.objects.filter(product_category='CHICKEN')
+    return render(request, 'adminside/displaybestsellers.html', {'chicken_bestsellers':chicken_bestsellers,'beef_bestsellers':beef_bestsellers,'beef':beef,'chicken':chicken})
+
+def add_bestsellers(request, category):
+    if request.method == 'POST':
+        product = request.POST['product']
+        category = Category.objects.get(category_name=category)
+        try:
+            product = Product.objects.get(product_name=product, product_category=category)
+        except:
+            return redirect('displaybestsellers')
+        try:
+            if BestSellers.objects.get(product=product, category=category):
+                messages.warning(request,'This product already exist')
+            else:
+                pass
+        except:
+            count = BestSellers.objects.filter(category=category).count()
+            print(count)
+            if int(count) < 4:
+                BestSellers(product=product, category=category).save()
+            else:
+                messages.warning(request, str(count)+' items in '+str(category)+' category exist')
+    return redirect('displaybestsellers')
+
+def remove_bestsellers(request, product, category):
+    print(product, category)
+    category = Category.objects.get(category_name=category)
+    product = Product.objects.get(id=product, product_category=category)
+    BestSellers.objects.get(product=product, category=category).delete()
+    return redirect('displaybestsellers')

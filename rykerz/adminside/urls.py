@@ -37,7 +37,11 @@ urlpatterns = [
     path('displayorderdetails/<int:order_id>', views.display_order_details, name='displayorderdetails'),
     path('removeoffer/<int:id>', views.remove_offer, name='removeoffer'),
     path('displaytransactions', views.display_transactions, name='displaytransactions'),
-    path('adminsidesearch/<str:range>', views.adminside_search, name='adminsidesearch'),
+    path('adminsidesearch/<str:range>/<str:subrange>', views.adminside_search, name='adminsidesearch'),
+    path('displaybestsellers', views.display_bestsellers, name='displaybestsellers'),
+    path('addbestsellers/<str:category>', views.add_bestsellers, name='addbestsellers'),
+    path('removebestsellers/<str:product>/<str:category>', views.remove_bestsellers, name='removebestsellers'),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

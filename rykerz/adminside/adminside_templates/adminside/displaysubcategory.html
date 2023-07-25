@@ -10,13 +10,14 @@
         </ol>
         {% if sub_categories %}
         <div class="d-flex justify-content-between">
-            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-                <div class="input-group">
-                    <input class="form-control" type="text" placeholder="Search by product name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
-                </div>
-            </form>
-            <a class="btn btn-primary" href="{% url 'add-sub-category' %}" role="button">Add SubCategory</a>
+          <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0" method="post" action="{% url 'adminsidesearch' 'subcategories' category %}">
+            {% csrf_token %}
+              <div class="input-group">
+                  <input class="form-control" name="search" type="text" placeholder="Search by subcategory name" aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                  <button class="btn btn-primary" id="btnNavbarSearch" type="submit"><i class="fas fa-search"></i></button>
+              </div>
+          </form>
+          <a class="btn btn-primary" href="{% url 'add-sub-category' %}" role="button">Add SubCategory</a>
         </div>
         <br>
         <table class="table table-striped table-dark">

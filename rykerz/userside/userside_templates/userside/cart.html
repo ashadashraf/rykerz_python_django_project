@@ -2,7 +2,7 @@
 {% block content %}
 
 {% if cart_items %}
-<div class="ml-5 mt-3">
+<div class="ml-4 mt-3">
         <form action="{% url 'checkout' user.id 0.0 %}" method="post">
         {% csrf_token %}
         <div class="row">
