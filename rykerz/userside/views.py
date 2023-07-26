@@ -800,10 +800,12 @@ def user_order_status(request, order_id, status):
                     coupon_amount = round(bulk_order.final_amount * (bulk_order.coupon.discount_percentage/100), 2)
             else:
                 bulk_order.coupon = False
+                coupon_amount = 0.0
         else:
             bulk_order.coupon = False
+            coupon_amount = 0.0
     except:
-        pass
+        coupon_amount = 0.0
     valid_orders = Order.objects.filter(bulk_order=order.bulk_order).exclude(order_status__in=['cancelled','returned'])
     if valid_orders:
         pass
