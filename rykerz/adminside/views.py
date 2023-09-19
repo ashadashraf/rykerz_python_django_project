@@ -465,21 +465,24 @@ def update_sub_category_record(request, category_name, subcategory_name):
         sub_category_img = request.FILES.get('sub_c_img')
         
         category = Category.objects.get(category_name=category_name)
-        try:
-            if SubCategory.objects.get(category=category, sub_category_name=sub_category_name):
-                messages.success(request, 'SubCategory name already exist')
-                return redirect('u-sub-category', category_name, subcategory_name)
-        except:
-            pass
+        sub_category = SubCategory.objects.get(category=category, sub_category_name=subcategory_name)
+        if sub_category.sub_category_name != sub_category_name:
+            print(sub_category_name, sub_category.sub_category_name)
+            try:
+                if SubCategory.objects.get(category=category, sub_category_name=sub_category_name):
+                    messages.success(request, 'SubCategory name already exist')
+                    return redirect('u-sub-category', category_name, subcategory_name)
+            except:
+                pass
 
         sub_category = SubCategory.objects.get(category=category, sub_category_name=subcategory_name)
         sub_category.sub_category_name = sub_category_name
-        try:
-            if SubCategory.objects.get(category=category, sub_category_name=sub_category_name):
-                messages.success(request, 'SubCategory name already exist')
-                return redirect('u-sub-category', category_name, subcategory_name)
-        except:
-            pass
+        # try:
+        #     if SubCategory.objects.get(category=category, sub_category_name=sub_category_name):
+        #         messages.success(request, 'SubCategory name already exist')
+        #         return redirect('u-sub-category', category_name, subcategory_name)
+        # except:
+        #     pass
 
         sub_category.category = category
         sub_category.sub_category_status = sub_category_status
