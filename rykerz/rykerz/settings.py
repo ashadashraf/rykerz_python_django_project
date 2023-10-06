@@ -31,7 +31,7 @@ DEBUG = True
 
 # ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '127.0.0.1']
 
-ALLOWED_HOSTS = ['www.ashadashraf.com']
+ALLOWED_HOSTS = ['www.ashadashraf.com', 'rykerz-python-django-project.vercel.app']
 
 # Application definition
 
