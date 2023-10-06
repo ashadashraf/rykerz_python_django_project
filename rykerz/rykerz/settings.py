@@ -103,16 +103,27 @@ WSGI_APPLICATION = 'rykerz.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ["DATABASE_NAME"], 
+#         'USER': os.environ["DATABASE_USER"], 
+#         'PASSWORD': os.environ["DATABASE_PASSWORD"],
+#         'HOST': 'localhost',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ["DATABASE_NAME"], 
-        'USER': os.environ["DATABASE_USER"], 
-        'PASSWORD': os.environ["DATABASE_PASSWORD"],
-        'HOST': 'localhost',
+        'URL': os.getenv('POSTGRES_URL'),
+        'NAME': os.getenv('PGNAME'),
+        'USER': os.getenv('PGUSER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('PGHOST'),
+        'PORT': os.getenv('PGPORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
