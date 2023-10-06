@@ -29,8 +29,6 @@ RAZORPAY_KEY_SECRET = os.environ["RAZORPAY_KEY_SECRET"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
-
 ALLOWED_HOSTS = ['www.ashadashraf.com']
 
 
