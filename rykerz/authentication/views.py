@@ -47,6 +47,26 @@ def user_signin(request):
         if password != confirm_password:
             messages.success(request, 'properly enter the password')
             return redirect('usersignin')
+        elif len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long.')
+            print("Password must be at least 8 characters long.")
+            return redirect('usersignin')
+        elif not any(char.isdigit() for char in password):
+            messages.error(request, 'Password must contain at least one digit.')
+            print("Password must contain at least one digit.")
+            return redirect('usersignin')
+        elif not any(char.isalpha() for char in password):
+            messages.error(request, 'Password must contain characters.')
+            print("Password must contain characters.")
+            return redirect('usersignin')
+        elif not any(char.isupper() for char in password):
+            messages.error(request, 'Password must contain atleast one upper case.')
+            print("Password must contain atleast one upper case.")
+            return redirect('usersignin')
+        elif not any(char.islower() for char in password):
+            messages.error(request, 'Password must contain atleast one lower case.')
+            print("Password must contain atleast one lower case.")
+            return redirect('usersignin')
         elif CustomUser.objects.filter(email=email).exists():
             messages.success(request, 'email already exist')
             return redirect('usersignin')
@@ -55,15 +75,6 @@ def user_signin(request):
             return redirect('usersignin')
         elif CustomUser.objects.filter(name=name).exists():
             messages.success(request, 'username already taken')
-            return redirect('usersignin')
-        elif len(password) < 8:
-            print("Password must be at least 8 characters long.")
-            return redirect('usersignin')
-        elif not any(char.isdigit() for char in password):
-            print("Password must contain at least one digit.")
-            return redirect('usersignin')
-        elif not any(char.isalpha() for char in password):
-            print("Password must contain at least one letter.")
             return redirect('usersignin')
         else:
             pass
@@ -77,17 +88,33 @@ def user_signin(request):
             print(f"Password validation failed: {error_message}")
             return redirect('usersignin')
         print('entered')
-        try:
-            print(mobile)
-            send(mobile)
-        except:
-            return HttpResponse('Check your internet connetion or you have exceeded the twilio limit')
+
+        #Since twilio account is not active skip to the non-otp authentication.
+
+        # try:
+        #     print(mobile)
+        #     send(mobile)
+        # except:
+        #     return HttpResponse('Check your internet connetion or you have exceeded the twilio limit')
+        
         user = CustomUser.objects._create_user(name=name, mobile=mobile, email=email, password=password)
         user.is_active=True
         user.is_user=True
         user.save()
-        return redirect('verify',mobile=mobile)
-        # return redirect('userlogin')
+        
+        #Because of non-twilio 
+        user.is_verified = True
+        user.save()
+        try:
+            if Wallet.objects.get(customer=user):
+                pass
+        except:
+            Wallet(customer=user, amount=0.0).save()
+        login(request, user)
+        #Till here
+
+        # return redirect('verify',mobile=mobile)
+        return redirect('userlogin')
     
     if request.user.is_authenticated:
         return render(request, 'userside/home.html')
